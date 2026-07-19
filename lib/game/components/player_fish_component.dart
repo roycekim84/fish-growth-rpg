@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 import 'dart:ui';
 
@@ -17,7 +18,11 @@ class PlayerFishComponent extends PixelFishComponent with CollisionCallbacks {
     PlayerProgress? progress,
   }) : movement = movement ?? PlayerMovementController(),
        progress = progress ?? PlayerProgress(),
-       super(bodyColor: const Color(0xFF38E8D0), isPlayer: true);
+       super(
+         bodyColor: const Color(0xFF38E8D0),
+         speciesId: PlayerProgress.starterSpeciesId,
+         isPlayer: true,
+       );
 
   final Rect fieldBounds;
   final PlayerMovementController movement;
@@ -159,6 +164,7 @@ class PlayerFishComponent extends PixelFishComponent with CollisionCallbacks {
     currentSpecies = species;
     movement.setSpeciesSpeedMultiplier(species?.playerSpeedMultiplier ?? 1);
     bodyColor = colorForSpecies(speciesId);
+    unawaited(setSpeciesVisual(speciesId));
     hp.value = (maxHp * hpRatio).clamp(1, maxHp);
     _levelFlashRemaining = 1.2;
     progressChanges.value++;

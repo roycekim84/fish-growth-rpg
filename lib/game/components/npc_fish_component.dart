@@ -24,6 +24,7 @@ class NpcFishComponent extends PixelFishComponent {
        ),
        super(
          bodyColor: _colorForSpecies(species.id),
+         speciesId: species.id,
          scaleFactor: _visualScaleForSpecies(species.id),
        );
 

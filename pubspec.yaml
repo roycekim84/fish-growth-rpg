@@ -61,6 +61,8 @@ flutter:
 
   assets:
     - assets/data/
+    - assets/images/
+    - assets/images/fish/
 
   # To add assets to your application, add an assets section, like this:
   # assets:

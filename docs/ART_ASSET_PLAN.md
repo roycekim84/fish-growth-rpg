@@ -162,6 +162,16 @@ assets/images/              # 앱에 포함되는 최적화 PNG
 
 AI로 이미지 초안을 만들더라도 최종 런타임 에셋은 픽셀 단위 정리, 일관된 팔레트, 투명 배경, 애니메이션 프레임 정렬 검수를 거친다.
 
+### M8 물고기 스프라이트 체크포인트
+
+- 생성 원본: `art_source/concepts/`
+- 투명화·검수 중간본: `art_source/processed/`
+- 앱 runtime strip: `assets/images/fish/`
+- 규격·출처·생성 프롬프트: `assets/images/manifest.json`
+- 재빌드 도구: `tool/build_fish_sprite_strips.py`
+- 시작 종과 NPC 3종은 오른쪽 기준 4프레임이며, 왼쪽 이동은 런타임 반전으로 처리
+- 430×932 Web 검수에서 nearest-neighbor 경계와 종별 실루엣 구분을 확인
+
 ## 10. 에셋 완료 기준
 
 - 100% 확대에서 픽셀 경계가 깨끗함
