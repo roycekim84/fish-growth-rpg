@@ -10,7 +10,7 @@
 - 화면 방향: portrait only
 - 버전 관리: Git
 
-로컬에서 확인한 개발 기준선은 Flutter 3.44.0, Dart 3.12.0이다. 프로젝트 생성 시 `pubspec.lock`을 커밋해 실제 Flame 및 플러그인 버전을 고정한다.
+로컬에서 확인한 개발 기준선은 Flutter 3.44.0, Dart 3.12.0, Flame 1.37.0이다. `pubspec.lock`을 커밋해 실제 Flame 및 플러그인 버전을 고정한다.
 
 ## 2. 책임 분리
 

@@ -43,3 +43,10 @@
 - 결정: Flutter 앱의 `pubspec.lock`을 Git에 포함한다.
 - 이유: 앱 프로젝트에서 개발/CI/출시 빌드의 의존성 재현성을 확보한다.
 - 영향: 의존성 업그레이드는 별도 커밋과 회귀 테스트를 거친다.
+
+## D-007 — 앱 이름과 식별자
+
+- 상태: 확정
+- 결정: 프로젝트명은 `fish_growth_rpg`, 임시 표시명은 `Fish Growth RPG`, Android application ID와 iOS bundle ID는 `com.roycekim.fishgrowthrpg`를 사용한다.
+- 이유: M1 프로젝트 생성과 양 플랫폼 설정에 사용할 안정적인 기본값이 필요하다.
+- 영향: 실제 출시 이름을 바꾸더라도 패키지 식별자는 기존 설치 및 스토어 등록과 연결되므로 신중하게 변경한다.

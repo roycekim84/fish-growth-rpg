@@ -8,7 +8,7 @@
 - 범위 변경은 `PROJECT_SPEC.md`와 `DECISIONS.md`에 먼저 반영한다.
 - 각 작업 종료 시 `WORK_LOG.md`를 갱신한다.
 
-## M0 — 기획 및 기반 확정 `진행 중`
+## M0 — 기획 및 기반 확정 `완료`
 
 목표: 기술, 아트, 범위와 작업 방식을 문서로 고정한다.
 
@@ -19,22 +19,22 @@
 - [x] 기술 구현 계획 작성
 - [x] 단계별 로드맵 작성
 - [x] Git 저장소 초기화 및 문서 기준선 커밋
-- [ ] 앱 이름, package/bundle ID 임시값 결정
+- [x] 앱 이름, package/bundle ID 임시값 결정
 
 완료 조건: 문서 기준선이 커밋되고 프로젝트 생성에 필요한 식별자가 결정됨.
 
-## M1 — 실행 가능한 세로형 게임 셸
+## M1 — 실행 가능한 세로형 게임 셸 `완료`
 
 목표: Web, Android, iOS에서 같은 프로젝트가 실행된다.
 
-- Flutter 프로젝트 생성
-- Flame 설치 및 버전 고정
-- portrait orientation과 전체 화면 정책 적용
-- `FishGame`, `World`, `CameraComponent`, `GameWidget` 구성
-- Flutter 오버레이 샘플 HUD
-- 개발용 논리 해상도와 픽셀 렌더링 검증 화면
-- 종 데이터 JSON 3종 로드
-- CI 또는 로컬 품질 명령 스크립트
+- [x] Flutter 프로젝트 생성
+- [x] Flame 설치 및 버전 고정
+- [x] portrait orientation 적용
+- [x] `FishGame`, `World`, `CameraComponent`, `GameWidget` 구성
+- [x] Flutter 오버레이 샘플 HUD
+- [x] 개발용 논리 해상도와 픽셀 렌더링 검증 화면
+- [x] 종 데이터 JSON 3종 로드
+- [x] 로컬 품질 명령 검증
 
 완료 조건:
 
@@ -43,7 +43,15 @@
 - `flutter build web` 통과
 - Android/iOS 최소 1개 환경에서 실행 확인
 
-## M2 — 이동, 카메라, 필드
+검증 결과:
+
+- `flutter analyze`: 통과
+- `flutter test`: 2개 테스트 통과
+- `flutter build web --release`: 통과
+- `flutter build apk --debug`: 통과
+- iOS simulator build: 로컬 CoreSimulator 버전 불일치와 서명 대상 메타데이터 문제로 보류
+
+## M2 — 이동, 카메라, 필드 `다음`
 
 목표: 플레이어가 물속 느낌으로 필드를 이동한다.
 
@@ -159,8 +167,9 @@
 
 ## 현재 다음 작업
 
-1. 임시 앱 이름과 application/bundle ID 확정
-2. Flutter 프로젝트 생성
-3. Flame 설치
-4. 세로형 `GameWidget + World + Camera` 최소 셸 구현
-5. Web 빌드로 첫 화면 검증
+1. 드래그 입력과 PlayerController 구현
+2. 가속, 관성, 감속 구현
+3. 종별 이동 파라미터의 데이터 구조 연결
+4. 부스터 버튼과 상태 구현
+5. 필드 경계 및 카메라 추적 조정
+6. Web 및 Android에서 조작 검증
