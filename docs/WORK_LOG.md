@@ -38,6 +38,7 @@
 - M2 Web release 및 Android debug APK 빌드 통과
 - GitHub Pages Web alpha 자동 검증·배포 워크플로 추가
 - Web alpha 배포 및 장애 대응 문서 추가
+- 선택형 반자동 사냥 규칙과 M4.5 실험 마일스톤 추가
 
 ## 진행 중
 
