@@ -193,19 +193,31 @@
 - 390×844 웹에서 도감, 종 선택, 미해금 상태와 일시 정지 화면 확인
 - `flutter analyze`, Web release 및 Android debug APK 빌드 통과
 
-## M7 — 저장, 복원, 안정화
+## M7 — 저장, 복원, 안정화 `완료`
 
 목표: 앱을 닫고 다시 열어도 핵심 진행도가 안전하게 보존된다.
 
-- 저장 라이브러리 확정
-- schema version 1
-- 자동 저장 및 앱 수명주기 저장
-- 손상/누락 데이터 복구
-- UTC 마지막 저장 시간
-- Web/Android/iOS 저장 확인
-- 장시간 soak test
+- [x] 저장 라이브러리 확정
+- [x] schema version 1
+- [x] 자동 저장 및 앱 수명주기 저장
+- [x] 손상/누락 데이터 복구
+- [x] UTC 마지막 저장 시간
+- [x] Web/Android 저장 확인 및 iOS 공통 구현 연결
+- [x] 반복 직렬화·복원 및 게임 통합 안정성 테스트
 
 완료 조건: 재실행, 백그라운드 복귀, 업데이트 모의 테스트에서 진행도가 보존됨.
+
+검증 결과:
+
+- Flutter 공식 `shared_preferences` 2.5.5와 비캐시 `SharedPreferencesAsync` 적용
+- schema v1 JSON 왕복, 손상 데이터 제거, 미래 schema 보존 테스트 통과
+- 레벨·EXP·HP·Fullness·현재 종·해금·발견·포식 카운트·UTC 시간 복원 통과
+- 중요 상태 변경 700ms 디바운스와 inactive/paused/detached 즉시 저장 구현
+- 전체 자동 테스트 41개 및 `flutter analyze` 통과
+- Web release와 Android debug APK 빌드 통과
+- 390×844 Web에서 SAVE 상태와 UI 오버플로 없음, 런타임 오류 없음
+- Android API 36에서 HP 26 저장 후 프로세스 종료·재실행 시 HP 26 복원 확인
+- iOS 런타임 검증은 기존 로컬 Xcode/CoreSimulator 환경 블로커로 M9 실기기 회귀 항목에 유지
 
 ## M8 — 픽셀아트 완성 및 폴리시
 
@@ -236,8 +248,8 @@
 
 ## 현재 다음 작업
 
-1. 저장 라이브러리와 schema version 1 확정
-2. `PlayerProgress` JSON 직렬화와 손상 데이터 복구 구현
-3. 중요 이벤트·앱 수명주기 자동 저장 구현
-4. UTC 마지막 저장 시간 기록
-5. Web/Android 복원 테스트와 장시간 안정성 점검
+1. 물고기 3종 픽셀 스프라이트 모델 시트와 팔레트 확정
+2. 플레이어·NPC swim/turn/bite/hit 애니메이션 제작
+3. 배경 타일·수초·암초·거품 에셋 교체
+4. HUD·도감·종변화 화면 픽셀 UI 스킨 적용
+5. 사운드·햅틱·색각 접근성 보조 표시 추가

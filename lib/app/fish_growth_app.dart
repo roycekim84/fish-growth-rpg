@@ -1,8 +1,11 @@
+import 'package:fish_growth_rpg/data/save/player_save_repository.dart';
 import 'package:fish_growth_rpg/ui/game_screen.dart';
 import 'package:flutter/material.dart';
 
 class FishGrowthApp extends StatelessWidget {
-  const FishGrowthApp({super.key});
+  const FishGrowthApp({this.saveRepository, super.key});
+
+  final PlayerSaveRepository? saveRepository;
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +21,7 @@ class FishGrowthApp extends StatelessWidget {
         scaffoldBackgroundColor: const Color(0xFF071A2D),
         useMaterial3: true,
       ),
-      home: const GameScreen(),
+      home: GameScreen(saveRepository: saveRepository),
     );
   }
 }

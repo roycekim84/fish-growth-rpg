@@ -84,6 +84,31 @@ class PlayerProgress {
     return true;
   }
 
+  void restore({
+    required int level,
+    required int exp,
+    required double fullness,
+    required String currentSpeciesId,
+    required Map<String, int> eatenCountBySpeciesId,
+    required Set<String> unlockedSpeciesIds,
+    required Set<String> discoveredSpeciesIds,
+  }) {
+    this.level = level < 1 ? 1 : level;
+    this.exp = exp < 0 ? 0 : exp;
+    this.fullness = fullness.clamp(0, maxFullness);
+    this.currentSpeciesId = currentSpeciesId;
+    this.eatenCountBySpeciesId
+      ..clear()
+      ..addAll(eatenCountBySpeciesId);
+    this.unlockedSpeciesIds
+      ..clear()
+      ..add(starterSpeciesId)
+      ..addAll(unlockedSpeciesIds);
+    this.discoveredSpeciesIds
+      ..clear()
+      ..addAll(discoveredSpeciesIds);
+  }
+
   double consumeFullness(double requestedAmount) {
     if (requestedAmount <= 0 || fullness <= 0) {
       return 0;

@@ -1,7 +1,10 @@
+import 'dart:async';
 import 'dart:ui';
 
+import 'package:fish_growth_rpg/data/save/player_save_repository.dart';
 import 'package:fish_growth_rpg/data/species/species_repository.dart';
 import 'package:fish_growth_rpg/domain/models/fish_species.dart';
+import 'package:fish_growth_rpg/domain/models/player_save_data.dart';
 import 'package:fish_growth_rpg/game/components/drag_input_surface.dart';
 import 'package:fish_growth_rpg/game/components/underwater_light_overlay.dart';
 import 'package:fish_growth_rpg/game/fish_world.dart';
@@ -10,18 +13,30 @@ import 'package:flame/game.dart';
 import 'package:flutter/foundation.dart';
 
 class FishGame extends FlameGame<FishWorld> {
-  factory FishGame() {
+  factory FishGame({
+    PlayerSaveRepository saveRepository = const NoopPlayerSaveRepository(),
+    DateTime Function()? now,
+  }) {
     final fishWorld = FishWorld();
     final camera = CameraComponent.withFixedResolution(
       world: fishWorld,
       width: logicalWidth,
       height: logicalHeight,
     );
-    return FishGame._(world: fishWorld, camera: camera);
+    return FishGame._(
+      world: fishWorld,
+      camera: camera,
+      saveRepository: saveRepository,
+      now: now ?? DateTime.now,
+    );
   }
 
-  FishGame._({required FishWorld world, required CameraComponent camera})
-    : super(world: world, camera: camera);
+  FishGame._({
+    required FishWorld world,
+    required CameraComponent camera,
+    required this._saveRepository,
+    required this._now,
+  }) : super(world: world, camera: camera);
 
   static const double logicalWidth = 360;
   static const double logicalHeight = 640;
@@ -30,7 +45,17 @@ class FishGame extends FlameGame<FishWorld> {
 
   final ValueNotifier<int> loadedSpeciesCount = ValueNotifier<int>(0);
   final ValueNotifier<bool> boostState = ValueNotifier<bool>(false);
+  final ValueNotifier<SaveStatus> saveStatus = ValueNotifier<SaveStatus>(
+    SaveStatus.loading,
+  );
   List<FishSpecies> species = const [];
+
+  final PlayerSaveRepository _saveRepository;
+  final DateTime Function() _now;
+  Timer? _saveDebounce;
+  Future<void> _pendingSave = Future<void>.value();
+  bool _saveReady = false;
+  bool _isRemoved = false;
 
   @override
   Color backgroundColor() => const Color(0xFF071A2D);
@@ -38,6 +63,11 @@ class FishGame extends FlameGame<FishWorld> {
   @override
   Future<void> onLoad() async {
     await super.onLoad();
+    final loadResult = await _saveRepository.load();
+    final savedData = loadResult.data;
+    if (savedData != null) {
+      world.restoreSave(savedData);
+    }
     species = await SpeciesRepository().loadAll();
     loadedSpeciesCount.value = species.length;
     await world.initializeSpecies(species);
@@ -51,6 +81,15 @@ class FishGame extends FlameGame<FishWorld> {
       ),
     ]);
     camera.follow(world.player, maxSpeed: 420, snap: true);
+    world.player.progressChanges.addListener(_scheduleSave);
+    world.player.hp.addListener(_scheduleSave);
+    _saveReady = loadResult.state != SaveLoadState.unsupportedVersion;
+    saveStatus.value = switch (loadResult.state) {
+      SaveLoadState.loaded => SaveStatus.loaded,
+      SaveLoadState.recoveredCorrupt => SaveStatus.recovered,
+      SaveLoadState.unsupportedVersion => SaveStatus.unsupported,
+      SaveLoadState.empty => SaveStatus.ready,
+    };
   }
 
   void setBoosting(bool value) {
@@ -101,7 +140,25 @@ class FishGame extends FlameGame<FishWorld> {
   }
 
   SpeciesChangeResult changeSpecies(String speciesId) {
-    return world.changeSpecies(speciesId);
+    final result = world.changeSpecies(speciesId);
+    if (result == SpeciesChangeResult.success) {
+      unawaited(saveNow());
+    }
+    return result;
+  }
+
+  Future<void> saveNow() {
+    if (!_saveReady) {
+      return Future<void>.value();
+    }
+    _saveDebounce?.cancel();
+    final snapshot = PlayerSaveData.capture(
+      progress: world.player.progress,
+      hp: world.player.hp.value,
+      savedAt: _now(),
+    );
+    _pendingSave = _pendingSave.then((_) => _writeSave(snapshot));
+    return _pendingSave;
   }
 
   void _openModal(String overlayId) {
@@ -116,11 +173,60 @@ class FishGame extends FlameGame<FishWorld> {
     world.autoHuntSystem.setEnabled(false, stoppedReason: 'KO');
   }
 
+  void _scheduleSave() {
+    if (!_saveReady || _isRemoved) {
+      return;
+    }
+    saveStatus.value = SaveStatus.pending;
+    _saveDebounce?.cancel();
+    _saveDebounce = Timer(const Duration(milliseconds: 700), () {
+      unawaited(saveNow());
+    });
+  }
+
+  Future<void> _writeSave(PlayerSaveData snapshot) async {
+    if (!_isRemoved) {
+      saveStatus.value = SaveStatus.saving;
+    }
+    try {
+      await _saveRepository.save(snapshot);
+      if (!_isRemoved) {
+        saveStatus.value = SaveStatus.saved;
+      }
+    } on Object {
+      if (!_isRemoved) {
+        saveStatus.value = SaveStatus.failed;
+      }
+    }
+  }
+
   @override
   void onRemove() {
+    _isRemoved = true;
+    _saveReady = false;
+    _saveDebounce?.cancel();
+    world.player.progressChanges.removeListener(_scheduleSave);
+    world.player.hp.removeListener(_scheduleSave);
     world.playerDefeatCount.removeListener(_handlePlayerDefeat);
     loadedSpeciesCount.dispose();
     boostState.dispose();
+    saveStatus.dispose();
     super.onRemove();
   }
+}
+
+enum SaveStatus {
+  loading('LOAD'),
+  ready('LOCAL'),
+  loaded('LOADED'),
+  recovered('RECOVERED'),
+  unsupported('NEW SAVE'),
+  pending('PENDING'),
+  saving('SAVING'),
+  saved('SAVED'),
+  failed('SAVE ERR');
+
+  const SaveStatus(this.label);
+
+  final String label;
 }

@@ -213,6 +213,16 @@ M6 종 수집·종변화 기준:
 - 도감과 종변화는 Flutter 전체 화면 오버레이이며 표시 중 Flame 엔진을 일시 정지
 - 도감은 미발견 종을 실루엣으로 표시하고 종변화 화면은 잠금·현재·선택 상태를 구분
 
+M7 저장·복원 기준:
+
+- `PlayerSaveData` schema version 1은 런타임 Component가 아닌 영구 진행도만 JSON으로 직렬화
+- 저장 매체는 `PlayerSaveRepository` 뒤에 숨기고 기본 구현은 `SharedPreferencesAsync`를 사용
+- 중요 상태 변경은 700ms 디바운스하며 종변화와 앱 inactive/paused/detached 시 즉시 저장
+- 저장 요청은 직렬 Future 큐로 순서를 보장하고 UI 제거 뒤 완료된 비동기 쓰기는 상태 알림을 건드리지 않음
+- 손상 JSON은 제거 후 기본 상태로 복구하고, 알 수 없는 미래 schema는 보존하며 덮어쓰지 않음
+- 마지막 저장 시간은 UTC ISO-8601이며 오프라인 보상은 계산하지 않고 후속 확장 데이터로만 유지
+- HUD는 LOAD/LOCAL/PENDING/SAVING/SAVED/RECOVERED/SAVE ERR 상태를 표시
+
 ## 10. 플랫폼 및 출시 준비
 
 - Android application ID와 iOS bundle ID는 M1에서 확정

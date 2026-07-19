@@ -287,6 +287,7 @@ class _PopulationStatus extends StatelessWidget {
         game.world.consumedFishCount,
         game.world.playerDefeatCount,
         game.world.player.progressChanges,
+        game.saveStatus,
       ]),
       builder: (context, child) {
         return Text(
@@ -296,7 +297,8 @@ class _PopulationStatus extends StatelessWidget {
           'EAT  ${game.world.player.progress.totalEaten}  '
           'KO  ${game.world.playerDefeatCount.value}\n'
           'STR  ${game.world.player.strength.toStringAsFixed(0)}  '
-          'SIZE  ${game.world.player.gameplaySize.toStringAsFixed(2)}',
+          'SIZE  ${game.world.player.gameplaySize.toStringAsFixed(2)}\n'
+          'SAVE  ${game.saveStatus.value.label}',
           style: const TextStyle(
             color: Color(0xFFB8FFF1),
             fontSize: 11,

@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:fish_growth_rpg/domain/models/player_save_data.dart';
 import 'package:fish_growth_rpg/domain/models/player_progress.dart';
 import 'package:fish_growth_rpg/game/components/field_boundary_component.dart';
 import 'package:fish_growth_rpg/game/components/ocean_backdrop.dart';
@@ -51,6 +52,7 @@ class FishWorld extends World with HasCollisionDetection {
   NpcSpawnSystem? _spawnSystem;
   List<FishSpecies> _species = const [];
   double _combatMessageRemaining = 0;
+  double? _restoredHp;
 
   List<NpcFishComponent> get activeNpcFish =>
       _spawnSystem?.activeFish ?? const [];
@@ -114,9 +116,28 @@ class FishWorld extends World with HasCollisionDetection {
           .firstOrNull;
       player.equipSpecies(current);
     }
+    final restoredHp = _restoredHp;
+    if (restoredHp != null) {
+      player.hp.value = restoredHp.clamp(1, player.maxHp);
+      _restoredHp = null;
+      player.progressChanges.value++;
+    }
     final system = NpcSpawnSystem(fishWorld: this, species: species);
     _spawnSystem = system;
     await add(system);
+  }
+
+  void restoreSave(PlayerSaveData data) {
+    player.progress.restore(
+      level: data.level,
+      exp: data.exp,
+      fullness: data.fullness,
+      currentSpeciesId: data.currentSpeciesId,
+      eatenCountBySpeciesId: data.eatenCountBySpeciesId,
+      unlockedSpeciesIds: data.unlockedSpeciesIds,
+      discoveredSpeciesIds: data.discoveredSpeciesIds,
+    );
+    _restoredHp = data.hp;
   }
 
   SpeciesChangeResult changeSpecies(String speciesId) {

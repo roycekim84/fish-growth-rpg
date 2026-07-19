@@ -1,10 +1,13 @@
 import 'package:fish_growth_rpg/app/fish_growth_app.dart';
+import 'package:fish_growth_rpg/data/save/player_save_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/widgets.dart';
 
 void main() {
   testWidgets('shows the portrait game shell and HUD', (tester) async {
-    await tester.pumpWidget(const FishGrowthApp());
+    await tester.pumpWidget(
+      const FishGrowthApp(saveRepository: NoopPlayerSaveRepository()),
+    );
     await tester.pump();
 
     expect(find.text('FISH GROWTH RPG'), findsOneWidget);

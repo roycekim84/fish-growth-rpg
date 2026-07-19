@@ -2,8 +2,8 @@
 
 ## 현재 상태
 
-- 현재 마일스톤: M6 — 종 수집과 종변화 완료
-- 다음 마일스톤: M7 — 저장, 복원, 안정화
+- 현재 마일스톤: M7 — 저장, 복원, 안정화 핵심 범위 완료
+- 다음 마일스톤: M8 — 픽셀아트 완성 및 폴리시
 - 마지막 갱신: 2026-07-19
 
 ## 완료
@@ -94,21 +94,33 @@
 - 해금·배율·전투 제한·오버레이 테스트를 포함해 전체 36개 테스트 통과
 - 390×844 웹에서 도감, 종변화, 미해금 상태를 확인하고 오버플로 없음
 - M6 Web release 및 Android debug APK 빌드 통과
+- Flutter 공식 `shared_preferences` 2.5.5와 `SharedPreferencesAsync` 로컬 저장 연결
+- 플러그인과 분리된 `PlayerSaveData` schema version 1 및 저장소 인터페이스 구현
+- 레벨, EXP, HP, Fullness, 현재 종, 해금·발견 종, 포식 카운트 직렬화 구현
+- 모든 저장 시간의 UTC ISO-8601 기록 구현
+- 손상 JSON 자동 제거와 미래 schema 파일 비덮어쓰기 정책 구현
+- 진행 상태 변경 700ms 디바운스 저장과 종변화 즉시 저장 구현
+- inactive/paused/detached 앱 수명주기 저장 어댑터 구현
+- LOAD/LOCAL/PENDING/SAVING/SAVED/RECOVERED/SAVE ERR HUD 상태 표시 구현
+- 저장 codec·손상 복구·게임 복원·수명주기 테스트를 포함해 전체 41개 테스트 통과
+- 390×844 Web에서 저장 상태 UI와 런타임 오류 없음 확인
+- Android API 36 에뮬레이터에서 HP 26 저장 후 강제 종료·재실행 복원 확인
+- M7 Web release 및 Android debug APK 빌드 통과
 
 ## 진행 중
 
-- M7 로컬 저장 스키마와 앱 수명주기 연결 준비
+- M8 픽셀아트 제작 기준선과 런타임 스프라이트 교체 계획 준비
 
 ## 다음 작업
 
-- 저장 라이브러리와 schema version 1 확정
-- 진행도 직렬화, 손상 데이터 복구와 자동 저장
-- UTC 마지막 저장 시간과 플랫폼별 복원 검증
+- 물고기 모델 시트와 종별 애니메이션 프레임 제작
+- 배경 타일·props·파티클 에셋 교체
+- 픽셀 UI 스킨, 사운드와 햅틱 최소 세트
 
 ## 블로커/미결정
 
 - 플레이어 시작 종의 최종 이름과 DEX/INT 수치
 - iOS 빌드 환경: 설치된 CoreSimulator 1051.54.0이 Xcode 요구 버전 1051.55.0보다 낮음
 - iOS simulator 서명 대상 Flutter.framework에 macOS resource fork/metadata 오류 존재
-- 현재 연결된 모바일 기기가 없어 실제 터치 실행 확인은 후속 검증 필요
+- Android API 36 에뮬레이터 실행·저장 복원은 확인했으며 실제 물리 기기 터치 검증은 후속 필요
 - 자동 입력 없이 중앙에서 장시간 정지하면 Hunter가 재접근해 연속 부활할 수 있어 실기기 플레이에서 스폰·추격 밸런스 확인 필요

@@ -530,6 +530,16 @@ PlayerSaveData
 - `schemaVersion`으로 향후 마이그레이션 지원
 - 알 수 없는 종 ID나 누락 필드는 기본값으로 복구
 
+M7 구현 기준선:
+
+- 저장 키: `fish_growth_player_save_v1`
+- 저장 매체: `SharedPreferencesAsync`를 감싼 `PlayerSaveRepository`
+- 진행 상태 변경 후 700ms 디바운스 저장
+- 종변화와 앱 inactive/paused/detached 시 즉시 저장
+- 손상 JSON은 제거하고 기본 진행도로 복구
+- 현재 앱보다 높은 schema는 삭제하거나 덮어쓰지 않음
+- HUD에 현재 저장 상태를 짧은 영문 라벨로 표시
+
 월드 내 NPC 위치와 HP는 저장하지 않는다. 세션 진행도와 영구 진행도만 저장한다.
 
 ---

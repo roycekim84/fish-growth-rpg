@@ -1,3 +1,7 @@
+import 'dart:async';
+
+import 'package:fish_growth_rpg/app/lifecycle/game_lifecycle_save_observer.dart';
+import 'package:fish_growth_rpg/data/save/player_save_repository.dart';
 import 'package:fish_growth_rpg/game/fish_game.dart';
 import 'package:fish_growth_rpg/ui/collection/collection_overlay.dart';
 import 'package:fish_growth_rpg/ui/hud/hud_overlay.dart';
@@ -5,10 +9,38 @@ import 'package:fish_growth_rpg/ui/species/species_change_overlay.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 
-class GameScreen extends StatelessWidget {
-  const GameScreen({super.key});
+class GameScreen extends StatefulWidget {
+  const GameScreen({this.saveRepository, super.key});
+
+  final PlayerSaveRepository? saveRepository;
+
+  @override
+  State<GameScreen> createState() => _GameScreenState();
+}
+
+class _GameScreenState extends State<GameScreen> {
+  late final FishGame _game;
+  late final GameLifecycleSaveObserver _lifecycleObserver;
 
   static const double _webPortraitAspectRatio = 9 / 16;
+
+  @override
+  void initState() {
+    super.initState();
+    _game = FishGame(
+      saveRepository:
+          widget.saveRepository ?? SharedPreferencesPlayerSaveRepository(),
+    );
+    _lifecycleObserver = GameLifecycleSaveObserver(game: _game);
+    WidgetsBinding.instance.addObserver(_lifecycleObserver);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(_lifecycleObserver);
+    unawaited(_game.saveNow());
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -19,8 +51,8 @@ class GameScreen extends StatelessWidget {
           builder: (context, constraints) {
             final isWide = constraints.maxWidth / constraints.maxHeight > 0.75;
             final gameSurface = ClipRect(
-              child: GameWidget<FishGame>.controlled(
-                gameFactory: FishGame.new,
+              child: GameWidget<FishGame>(
+                game: _game,
                 initialActiveOverlays: const [HudOverlay.overlayId],
                 overlayBuilderMap: {
                   HudOverlay.overlayId: (context, game) =>
