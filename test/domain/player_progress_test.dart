@@ -1,0 +1,54 @@
+import 'package:fish_growth_rpg/domain/models/player_progress.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+void main() {
+  group('PlayerProgress', () {
+    test('applies multiple level-ups and preserves remaining EXP', () {
+      final progress = PlayerProgress(fullness: 0);
+
+      final result = progress.recordConsumption(
+        speciesId: 'hunter_fish',
+        expReward: 100,
+        fullnessReward: 35,
+      );
+
+      expect(result.levelsGained, 2);
+      expect(progress.level, 3);
+      expect(progress.exp, 30);
+      expect(progress.requiredExp, 50);
+      expect(progress.maxHp, 50);
+      expect(progress.strength, 5);
+      expect(progress.size, closeTo(0.86, 0.0001));
+      expect(progress.weight, closeTo(1.1, 0.0001));
+    });
+
+    test('caps fullness and counts each consumed species', () {
+      final progress = PlayerProgress(fullness: 95);
+
+      final first = progress.recordConsumption(
+        speciesId: 'small_fish',
+        expReward: 5,
+        fullnessReward: 10,
+      );
+      final second = progress.recordConsumption(
+        speciesId: 'small_fish',
+        expReward: 5,
+        fullnessReward: 10,
+      );
+
+      expect(progress.fullness, PlayerProgress.maxFullness);
+      expect(first.fullnessGained, 5);
+      expect(second.fullnessGained, 0);
+      expect(first.speciesEatCount, 1);
+      expect(second.speciesEatCount, 2);
+      expect(progress.totalEaten, 2);
+    });
+
+    test('never consumes more fullness than remains', () {
+      final progress = PlayerProgress(fullness: 2);
+
+      expect(progress.consumeFullness(5), 2);
+      expect(progress.fullness, 0);
+    });
+  });
+}

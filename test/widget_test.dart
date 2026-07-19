@@ -12,6 +12,9 @@ void main() {
     expect(find.text('HP'), findsOneWidget);
     expect(find.text('FULL'), findsOneWidget);
     expect(find.text('EXP'), findsOneWidget);
+    expect(find.text('40 / 40'), findsOneWidget);
+    expect(find.text('50 / 100'), findsOneWidget);
+    expect(find.text('0 / 30'), findsOneWidget);
     final button = find.byKey(const ValueKey('boost-button'));
     final autoButton = find.byKey(const ValueKey('auto-hunt-button'));
     expect(button, findsOneWidget);

@@ -7,6 +7,7 @@ import 'package:fish_growth_rpg/game/components/player_fish_component.dart';
 import 'package:fish_growth_rpg/game/systems/auto_hunt_system.dart';
 import 'package:fish_growth_rpg/game/systems/combat_system.dart';
 import 'package:fish_growth_rpg/game/systems/npc_spawn_system.dart';
+import 'package:fish_growth_rpg/game/systems/recovery_system.dart';
 import 'package:fish_growth_rpg/domain/models/fish_species.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/foundation.dart';
@@ -17,11 +18,16 @@ class FishWorld extends World with HasCollisionDetection {
         position: Vector2.zero(),
         fieldBounds: fieldBounds,
       ) {
+    recoverySystem = RecoverySystem(
+      player: player,
+      onRecoveryStarted: () => setCombatMessage('RECOVERING'),
+    );
     combatSystem = CombatSystem(
       player: player,
-      onFishConsumed: (_) => consumedFishCount.value++,
+      onFishConsumed: _handleFishConsumed,
       onPlayerDefeated: () => playerDefeatCount.value++,
       onCombatMessage: setCombatMessage,
+      onCombatOccurred: recoverySystem.markCombat,
     );
     autoHuntSystem = AutoHuntSystem(
       player: player,
@@ -39,6 +45,7 @@ class FishWorld extends World with HasCollisionDetection {
   final ValueNotifier<String> combatMessage = ValueNotifier<String>('');
   late final CombatSystem combatSystem;
   late final AutoHuntSystem autoHuntSystem;
+  late final RecoverySystem recoverySystem;
 
   NpcSpawnSystem? _spawnSystem;
   double _combatMessageRemaining = 0;
@@ -53,6 +60,7 @@ class FishWorld extends World with HasCollisionDetection {
       OceanBackdrop(),
       FieldBoundaryComponent(bounds: fieldBounds),
       combatSystem,
+      recoverySystem,
       autoHuntSystem,
       player,
     ]);
@@ -73,6 +81,18 @@ class FishWorld extends World with HasCollisionDetection {
   void setCombatMessage(String message) {
     combatMessage.value = message;
     _combatMessageRemaining = 0.9;
+  }
+
+  void _handleFishConsumed(NpcFishComponent fish) {
+    consumedFishCount.value++;
+    final result = player.consume(fish.species);
+    if (result.leveledUp) {
+      setCombatMessage('LEVEL UP!  LV.${player.progress.level}');
+      return;
+    }
+    setCombatMessage(
+      '+${result.expGained} EXP  +${result.fullnessGained.toInt()} FULL',
+    );
   }
 
   Future<void> initializeSpecies(List<FishSpecies> species) async {

@@ -12,6 +12,7 @@ class CombatSystem extends Component {
     required this.onFishConsumed,
     required this.onPlayerDefeated,
     required this.onCombatMessage,
+    required this.onCombatOccurred,
     this.attackInterval = 0.75,
   });
 
@@ -19,6 +20,7 @@ class CombatSystem extends Component {
   final void Function(NpcFishComponent fish) onFishConsumed;
   final void Function() onPlayerDefeated;
   final void Function(String message) onCombatMessage;
+  final void Function() onCombatOccurred;
   final double attackInterval;
 
   final Set<NpcFishComponent> _activeContacts = {};
@@ -88,8 +90,10 @@ class CombatSystem extends Component {
       case CombatRelation.instantConsume:
         _consume(fish);
       case CombatRelation.playerInDanger:
+        onCombatOccurred();
         _damagePlayer(fish.species.strength, attacker: fish);
       case CombatRelation.mutualCombat:
+        onCombatOccurred();
         final defeated = fish.takeDamage(player.strength);
         _impact(fish.position, const Color(0xFFFFD166));
         onCombatMessage(

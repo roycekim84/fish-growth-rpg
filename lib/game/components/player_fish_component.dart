@@ -1,6 +1,8 @@
 import 'dart:math' as math;
 import 'dart:ui';
 
+import 'package:fish_growth_rpg/domain/models/fish_species.dart';
+import 'package:fish_growth_rpg/domain/models/player_progress.dart';
 import 'package:fish_growth_rpg/game/components/pixel_fish_component.dart';
 import 'package:fish_growth_rpg/game/controllers/player_movement_controller.dart';
 import 'package:flame/collisions.dart';
@@ -12,23 +14,31 @@ class PlayerFishComponent extends PixelFishComponent with CollisionCallbacks {
     required super.position,
     required this.fieldBounds,
     PlayerMovementController? movement,
+    PlayerProgress? progress,
   }) : movement = movement ?? PlayerMovementController(),
+       progress = progress ?? PlayerProgress(),
        super(bodyColor: const Color(0xFF38E8D0), isPlayer: true);
 
   final Rect fieldBounds;
   final PlayerMovementController movement;
-  final ValueNotifier<double> hp = ValueNotifier<double>(40);
+  final PlayerProgress progress;
+  late final ValueNotifier<double> hp = ValueNotifier<double>(maxHp);
+  final ValueNotifier<int> progressChanges = ValueNotifier<int>(0);
 
   void Function(PositionComponent other)? onContactStart;
   void Function(PositionComponent other)? onContactEnd;
 
-  double get gameplaySize => 0.8;
-  double get maxHp => 40;
-  double get strength => 3;
+  double get gameplaySize => progress.size;
+  double get maxHp => progress.maxHp;
+  double get strength => progress.strength;
+  double get weight => progress.weight;
   bool get isAlive => hp.value > 0;
 
   double _facing = 1;
   double _hitFlashRemaining = 0;
+  double _levelFlashRemaining = 0;
+  double _recoveryPulse = 0;
+  bool _isRecovering = false;
 
   @override
   Future<void> onLoad() async {
@@ -46,8 +56,11 @@ class PlayerFishComponent extends PixelFishComponent with CollisionCallbacks {
   void update(double dt) {
     super.update(dt);
     _hitFlashRemaining = math.max(0, _hitFlashRemaining - dt);
+    _levelFlashRemaining = math.max(0, _levelFlashRemaining - dt);
+    _recoveryPulse += dt;
     movement.update(dt);
     position.addScaled(movement.velocity, math.min(dt, 1 / 20));
+    _updateGrowthScale();
     _constrainToField();
     _updateFacing(dt);
   }
@@ -59,6 +72,27 @@ class PlayerFishComponent extends PixelFishComponent with CollisionCallbacks {
       canvas.drawRect(
         Rect.fromLTWH(2, 2, size.x - 4, size.y - 4),
         Paint()..color = const Color(0xAAFFFFFF),
+      );
+    }
+    if (_isRecovering) {
+      final pulse = 0.55 + math.sin(_recoveryPulse * 8) * 0.25;
+      canvas.drawRect(
+        Rect.fromLTWH(-2, -2, size.x + 4, size.y + 4),
+        Paint()
+          ..color = const Color(0xFF5CFFB1).withValues(alpha: pulse)
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 2,
+      );
+    }
+    if (_levelFlashRemaining > 0) {
+      canvas.drawRect(
+        Rect.fromLTWH(-4, -4, size.x + 8, size.y + 8),
+        Paint()
+          ..color = const Color(
+            0xFFFFF0B8,
+          ).withValues(alpha: (_levelFlashRemaining / 1.2).clamp(0, 1))
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 3,
       );
     }
   }
@@ -87,6 +121,45 @@ class PlayerFishComponent extends PixelFishComponent with CollisionCallbacks {
     return !isAlive;
   }
 
+  ConsumptionResult consume(FishSpecies species) {
+    final result = progress.recordConsumption(
+      speciesId: species.id,
+      expReward: species.expReward,
+      fullnessReward: species.fullnessReward,
+    );
+    if (result.maxHpGained > 0) {
+      hp.value = (hp.value + result.maxHpGained).clamp(0, maxHp);
+    }
+    if (result.leveledUp) {
+      _levelFlashRemaining = 1.2;
+    }
+    progressChanges.value++;
+    return result;
+  }
+
+  double recover(double dt) {
+    if (dt <= 0 || hp.value >= maxHp || progress.fullness <= 0) {
+      return 0;
+    }
+    const fullnessPerSecond = 5.0;
+    const hpPerSecond = 8.0;
+    final hpGap = maxHp - hp.value;
+    final fullnessForHpGap = hpGap * fullnessPerSecond / hpPerSecond;
+    final requestedFullness = math.min(
+      fullnessPerSecond * dt,
+      fullnessForHpGap,
+    );
+    final consumed = progress.consumeFullness(requestedFullness);
+    final recovered = consumed * hpPerSecond / fullnessPerSecond;
+    hp.value = (hp.value + recovered).clamp(0, maxHp);
+    progressChanges.value++;
+    return recovered;
+  }
+
+  void setRecovering(bool value) {
+    _isRecovering = value;
+  }
+
   void reviveAt(Vector2 safePosition) {
     hp.value = maxHp;
     position.setFrom(safePosition);
@@ -99,12 +172,14 @@ class PlayerFishComponent extends PixelFishComponent with CollisionCallbacks {
   @override
   void onRemove() {
     hp.dispose();
+    progressChanges.dispose();
     super.onRemove();
   }
 
   void _constrainToField() {
-    final halfWidth = size.x / 2;
-    final halfHeight = size.y / 2;
+    final growthScale = gameplaySize / PlayerProgress.baseSize;
+    final halfWidth = size.x * growthScale / 2;
+    final halfHeight = size.y * growthScale / 2;
     final minX = fieldBounds.left + halfWidth;
     final maxX = fieldBounds.right - halfWidth;
     final minY = fieldBounds.top + halfHeight;
@@ -136,7 +211,7 @@ class PlayerFishComponent extends PixelFishComponent with CollisionCallbacks {
 
     if (velocity.x.abs() > 4) {
       _facing = velocity.x.sign;
-      scale.x = _facing;
+      scale.x = _facing * scale.y;
     }
 
     final targetAngle = math
@@ -144,5 +219,10 @@ class PlayerFishComponent extends PixelFishComponent with CollisionCallbacks {
         .clamp(-0.5, 0.5);
     final turnBlend = 1 - math.pow(0.002, dt).toDouble();
     angle += (targetAngle - angle) * turnBlend;
+  }
+
+  void _updateGrowthScale() {
+    final growthScale = gameplaySize / PlayerProgress.baseSize;
+    scale.setValues(_facing * growthScale, growthScale);
   }
 }

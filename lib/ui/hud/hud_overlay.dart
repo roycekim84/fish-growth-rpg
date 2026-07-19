@@ -1,3 +1,4 @@
+import 'package:fish_growth_rpg/domain/models/player_progress.dart';
 import 'package:fish_growth_rpg/game/fish_game.dart';
 import 'package:flutter/material.dart';
 
@@ -104,37 +105,80 @@ class _StatusHud extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const _PixelPanel(
-          child: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  'FISH GROWTH RPG',
-                  style: TextStyle(
-                    color: Color(0xFFB8FFF1),
-                    fontSize: 14,
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: 1.4,
+        ListenableBuilder(
+          listenable: Listenable.merge([
+            game.world.player.progressChanges,
+            game.world.recoverySystem.isRecovering,
+          ]),
+          builder: (context, child) => _PixelPanel(
+            child: Row(
+              children: [
+                const Expanded(
+                  child: Text(
+                    'FISH GROWTH RPG',
+                    style: TextStyle(
+                      color: Color(0xFFB8FFF1),
+                      fontSize: 14,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 1.4,
+                    ),
                   ),
                 ),
-              ),
-              Text('LV. 1', style: TextStyle(fontWeight: FontWeight.w900)),
-            ],
+                Text(
+                  game.world.recoverySystem.isRecovering.value
+                      ? 'RECOVER'
+                      : 'LV. ${game.world.player.progress.level}',
+                  style: TextStyle(
+                    color: game.world.recoverySystem.isRecovering.value
+                        ? const Color(0xFF5CFFB1)
+                        : const Color(0xFFF2F8FF),
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
         const SizedBox(height: 8),
-        ValueListenableBuilder<double>(
-          valueListenable: game.world.player.hp,
-          builder: (context, hp, child) => _StatusBar(
+        ListenableBuilder(
+          listenable: Listenable.merge([
+            game.world.player.hp,
+            game.world.player.progressChanges,
+          ]),
+          builder: (context, child) => _StatusBar(
             label: 'HP',
-            value: hp / game.world.player.maxHp,
+            value: game.world.player.hp.value / game.world.player.maxHp,
+            valueText:
+                '${game.world.player.hp.value.ceil()} / ${game.world.player.maxHp.ceil()}',
             color: const Color(0xFFFF5C72),
           ),
         ),
         const SizedBox(height: 5),
-        const _StatusBar(label: 'FULL', value: 0.55, color: Color(0xFFFFC857)),
+        ValueListenableBuilder<int>(
+          valueListenable: game.world.player.progressChanges,
+          builder: (context, revision, child) => _StatusBar(
+            label: 'FULL',
+            value:
+                game.world.player.progress.fullness /
+                PlayerProgress.maxFullness,
+            valueText:
+                '${game.world.player.progress.fullness.ceil()} / ${PlayerProgress.maxFullness.ceil()}',
+            color: const Color(0xFFFFC857),
+          ),
+        ),
         const SizedBox(height: 5),
-        const _StatusBar(label: 'EXP', value: 0.25, color: Color(0xFF61AFFF)),
+        ValueListenableBuilder<int>(
+          valueListenable: game.world.player.progressChanges,
+          builder: (context, revision, child) => _StatusBar(
+            label: 'EXP',
+            value:
+                game.world.player.progress.exp /
+                game.world.player.progress.requiredExp,
+            valueText:
+                '${game.world.player.progress.exp} / ${game.world.player.progress.requiredExp}',
+            color: const Color(0xFF61AFFF),
+          ),
+        ),
         const SizedBox(height: 8),
         Center(
           child: ValueListenableBuilder<String>(
@@ -180,13 +224,16 @@ class _PopulationStatus extends StatelessWidget {
         game.world.npcCount,
         game.world.consumedFishCount,
         game.world.playerDefeatCount,
+        game.world.player.progressChanges,
       ]),
       builder: (context, child) {
         return Text(
           'SPECIES  ${game.loadedSpeciesCount.value} / 3\n'
           'NPC  ${game.world.npcCount.value} / 45\n'
-          'EAT  ${game.world.consumedFishCount.value}  '
-          'KO  ${game.world.playerDefeatCount.value}',
+          'EAT  ${game.world.player.progress.totalEaten}  '
+          'KO  ${game.world.playerDefeatCount.value}\n'
+          'STR  ${game.world.player.strength.toStringAsFixed(0)}  '
+          'SIZE  ${game.world.player.gameplaySize.toStringAsFixed(2)}',
           style: const TextStyle(
             color: Color(0xFFB8FFF1),
             fontSize: 11,
@@ -279,11 +326,13 @@ class _StatusBar extends StatelessWidget {
   const _StatusBar({
     required this.label,
     required this.value,
+    required this.valueText,
     required this.color,
   });
 
   final String label;
   final double value;
+  final String valueText;
   final Color color;
 
   @override
@@ -305,13 +354,32 @@ class _StatusBar extends StatelessWidget {
                 color: const Color(0xFF07101D),
                 border: Border.all(color: const Color(0xFFB8FFF1)),
               ),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: FractionallySizedBox(
-                  widthFactor: value,
-                  heightFactor: 1,
-                  child: ColoredBox(color: color),
-                ),
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: FractionallySizedBox(
+                      widthFactor: value.clamp(0, 1),
+                      heightFactor: 1,
+                      child: ColoredBox(color: color),
+                    ),
+                  ),
+                  Center(
+                    child: Text(
+                      valueText,
+                      style: const TextStyle(
+                        color: Color(0xFFF2F8FF),
+                        fontSize: 8,
+                        height: 1,
+                        fontWeight: FontWeight.w900,
+                        shadows: [
+                          Shadow(color: Color(0xFF07101D), blurRadius: 2),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),

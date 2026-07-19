@@ -30,6 +30,9 @@ void main() {
     }
 
     expect(game.world.consumedFishCount.value, 1);
+    expect(game.world.player.progress.exp, 5);
+    expect(game.world.player.progress.fullness, 60);
+    expect(game.world.player.progress.eatenCountBySpeciesId['small_fish'], 1);
 
     await tester.pump(const Duration(milliseconds: 1100));
 

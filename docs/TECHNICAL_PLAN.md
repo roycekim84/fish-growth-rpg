@@ -191,6 +191,17 @@ M4.5 반자동 사냥 기준:
 - 수동 드래그, 부스터, KO는 AUTO 상태를 즉시 해제
 - Flutter HUD는 `ValueNotifier`로 ON/OFF와 SEARCH/HUNT/중단 사유를 표시
 
+M5 생존·성장 기준:
+
+- `PlayerProgress`는 레벨, EXP, Fullness와 종별 포식 카운트를 UI·Flame과 분리해 소유
+- 초기 Fullness/MaxFullness는 50/100
+- EXP 요구량 `20 + Level * 10`, 한 보상에서 `while` 기반 다중 레벨업
+- 레벨 성장: MaxHP +5, STR +1, Size +0.03, Weight +0.05
+- `RecoverySystem`이 입력, 관성, 부스터, idle 1.5초와 전투 후 1초를 검사
+- 회복률은 Fullness 5/s, HP 8/s이며 실제 Fullness 소모량에 비례
+- HUD는 HP/FULL/EXP 실제 값과 레벨·STR·Size를 `ValueNotifier`로 반영
+- Size 성장은 플레이어 렌더 scale과 충돌 hitbox에 함께 적용
+
 ## 10. 플랫폼 및 출시 준비
 
 - Android application ID와 iOS bundle ID는 M1에서 확정
