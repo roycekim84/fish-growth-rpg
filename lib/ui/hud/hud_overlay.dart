@@ -64,17 +64,22 @@ class _StatusHud extends StatelessWidget {
           alignment: Alignment.bottomLeft,
           child: _PixelPanel(
             child: ValueListenableBuilder<int>(
-              valueListenable: game.loadedSpeciesCount,
-              builder: (context, count, child) {
-                return Text(
-                  'SPECIES DATA  $count / 3',
-                  style: const TextStyle(
-                    color: Color(0xFFB8FFF1),
-                    fontSize: 11,
-                    fontWeight: FontWeight.w800,
+              valueListenable: game.world.npcCount,
+              builder: (context, npcCount, child) =>
+                  ValueListenableBuilder<int>(
+                    valueListenable: game.loadedSpeciesCount,
+                    builder: (context, speciesCount, child) {
+                      return Text(
+                        'SPECIES  $speciesCount / 3\nNPC  $npcCount / 45',
+                        style: const TextStyle(
+                          color: Color(0xFFB8FFF1),
+                          fontSize: 11,
+                          height: 1.4,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      );
+                    },
                   ),
-                );
-              },
             ),
           ),
         ),

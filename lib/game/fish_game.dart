@@ -38,6 +38,7 @@ class FishGame extends FlameGame<FishWorld> {
     await super.onLoad();
     species = await SpeciesRepository().loadAll();
     loadedSpeciesCount.value = species.length;
+    await world.initializeSpecies(species);
     await camera.viewport.addAll([
       UnderwaterLightOverlay(logicalSize: Vector2(logicalWidth, logicalHeight)),
       DragInputSurface(

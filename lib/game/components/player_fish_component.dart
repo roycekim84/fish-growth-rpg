@@ -15,6 +15,8 @@ class PlayerFishComponent extends PixelFishComponent {
   final Rect fieldBounds;
   final PlayerMovementController movement;
 
+  double get gameplaySize => 0.8;
+
   double _facing = 1;
 
   @override

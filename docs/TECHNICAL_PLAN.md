@@ -160,6 +160,17 @@ flutter build web
 - 아틀라스 단위 로딩 및 첫 화면 필수 에셋 선로딩
 - 웹 성능은 회귀 탐지에 사용하되 모바일 프로파일 결과를 최종 기준으로 사용
 
+M3 NPC 기준:
+
+- 총 활성 NPC: SmallFish 30, PufferFish 10, HunterFish 5
+- 플레이어 최소 스폰 거리: 280 logical pixels
+- NPC 간 최소 초기 거리: 28 logical pixels
+- 감지 거리: 220 logical pixels
+- 가까운 NPC 상태 판단: 0.15초 주기
+- 먼 NPC 상태 판단: 0.6초 주기
+- 이동과 방향 보간: 매 프레임
+- 누락 개체 보충 검사: 1초 주기
+
 ## 10. 플랫폼 및 출시 준비
 
 - Android application ID와 iOS bundle ID는 M1에서 확정
