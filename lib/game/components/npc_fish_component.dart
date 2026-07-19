@@ -2,9 +2,11 @@ import 'dart:math' as math;
 import 'dart:ui';
 
 import 'package:fish_growth_rpg/domain/models/fish_species.dart';
+import 'package:fish_growth_rpg/domain/rules/combat_rules.dart';
 import 'package:fish_growth_rpg/game/components/pixel_fish_component.dart';
 import 'package:fish_growth_rpg/game/components/player_fish_component.dart';
 import 'package:fish_growth_rpg/game/controllers/npc_ai_controller.dart';
+import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 
 class NpcFishComponent extends PixelFishComponent {
@@ -33,12 +35,32 @@ class NpcFishComponent extends PixelFishComponent {
   final Vector2 velocity = Vector2.zero();
 
   bool _reportedRemoval = false;
+  bool _consumed = false;
+  double _hitFlashRemaining = 0;
+  late double currentHp = species.maxHp;
 
   double get gameplaySize => species.size;
+  bool get isAlive => !_consumed && currentHp > 0;
+
+  @override
+  Future<void> onLoad() async {
+    await super.onLoad();
+    await add(
+      CircleHitbox.relative(
+        0.68,
+        parentSize: size,
+        collisionType: CollisionType.passive,
+      ),
+    );
+  }
 
   @override
   void update(double dt) {
     super.update(dt);
+    _hitFlashRemaining = math.max(0, _hitFlashRemaining - dt);
+    if (!isAlive) {
+      return;
+    }
     ai.update(
       deltaTime: dt,
       position: position,
@@ -58,7 +80,40 @@ class NpcFishComponent extends PixelFishComponent {
 
   @override
   void render(Canvas canvas) {
+    final relation = CombatRules.relation(
+      playerSize: player.gameplaySize,
+      npcSize: gameplaySize,
+    );
+    final relationColor = switch (relation) {
+      CombatRelation.instantConsume => const Color(0xFF5CFFB1),
+      CombatRelation.mutualCombat => const Color(0xFFFFD166),
+      CombatRelation.playerInDanger => const Color(0xFFFF5C72),
+    };
+    canvas.drawRect(
+      Rect.fromLTWH(1, 1, size.x - 2, size.y - 2),
+      Paint()
+        ..color = relationColor
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.5,
+    );
     super.render(canvas);
+    if (_hitFlashRemaining > 0) {
+      canvas.drawRect(
+        Rect.fromLTWH(2, 2, size.x - 4, size.y - 4),
+        Paint()..color = const Color(0xAAFFFFFF),
+      );
+    }
+    if (currentHp < species.maxHp && currentHp > 0) {
+      final ratio = currentHp / species.maxHp;
+      canvas.drawRect(
+        Rect.fromLTWH(2, size.y + 3, size.x - 4, 2),
+        Paint()..color = const Color(0xFF07101D),
+      );
+      canvas.drawRect(
+        Rect.fromLTWH(2, size.y + 3, (size.x - 4) * ratio, 2),
+        Paint()..color = const Color(0xFFFF5C72),
+      );
+    }
     final stateColor = switch (ai.state) {
       NpcAiState.wander => const Color(0xFFB8FFF1),
       NpcAiState.flee => const Color(0xFF61AFFF),
@@ -68,6 +123,24 @@ class NpcFishComponent extends PixelFishComponent {
       Rect.fromLTWH(size.x / 2 - 2, -5, 4, 3),
       Paint()..color = stateColor,
     );
+  }
+
+  bool takeDamage(double amount) {
+    if (_consumed || currentHp <= 0 || amount <= 0) {
+      return currentHp <= 0;
+    }
+    currentHp = (currentHp - amount).clamp(0, species.maxHp);
+    _hitFlashRemaining = 0.14;
+    return currentHp <= 0;
+  }
+
+  bool markConsumed() {
+    if (_consumed) {
+      return false;
+    }
+    _consumed = true;
+    velocity.setZero();
+    return true;
   }
 
   @override

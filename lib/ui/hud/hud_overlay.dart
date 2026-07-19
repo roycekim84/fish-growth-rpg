@@ -54,36 +54,78 @@ class _StatusHud extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 8),
-        const _StatusBar(label: 'HP', value: 0.82, color: Color(0xFFFF5C72)),
+        ValueListenableBuilder<double>(
+          valueListenable: game.world.player.hp,
+          builder: (context, hp, child) => _StatusBar(
+            label: 'HP',
+            value: hp / game.world.player.maxHp,
+            color: const Color(0xFFFF5C72),
+          ),
+        ),
         const SizedBox(height: 5),
         const _StatusBar(label: 'FULL', value: 0.55, color: Color(0xFFFFC857)),
         const SizedBox(height: 5),
         const _StatusBar(label: 'EXP', value: 0.25, color: Color(0xFF61AFFF)),
+        const SizedBox(height: 8),
+        Center(
+          child: ValueListenableBuilder<String>(
+            valueListenable: game.world.combatMessage,
+            builder: (context, message, child) {
+              return AnimatedOpacity(
+                opacity: message.isEmpty ? 0 : 1,
+                duration: const Duration(milliseconds: 100),
+                child: _PixelPanel(
+                  child: Text(
+                    message.isEmpty ? ' ' : message,
+                    style: const TextStyle(
+                      color: Color(0xFFFFF0B8),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
         const Spacer(),
         Align(
           alignment: Alignment.bottomLeft,
-          child: _PixelPanel(
-            child: ValueListenableBuilder<int>(
-              valueListenable: game.world.npcCount,
-              builder: (context, npcCount, child) =>
-                  ValueListenableBuilder<int>(
-                    valueListenable: game.loadedSpeciesCount,
-                    builder: (context, speciesCount, child) {
-                      return Text(
-                        'SPECIES  $speciesCount / 3\nNPC  $npcCount / 45',
-                        style: const TextStyle(
-                          color: Color(0xFFB8FFF1),
-                          fontSize: 11,
-                          height: 1.4,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      );
-                    },
-                  ),
-            ),
-          ),
+          child: _PixelPanel(child: _PopulationStatus(game: game)),
         ),
       ],
+    );
+  }
+}
+
+class _PopulationStatus extends StatelessWidget {
+  const _PopulationStatus({required this.game});
+
+  final FishGame game;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListenableBuilder(
+      listenable: Listenable.merge([
+        game.loadedSpeciesCount,
+        game.world.npcCount,
+        game.world.consumedFishCount,
+        game.world.playerDefeatCount,
+      ]),
+      builder: (context, child) {
+        return Text(
+          'SPECIES  ${game.loadedSpeciesCount.value} / 3\n'
+          'NPC  ${game.world.npcCount.value} / 45\n'
+          'EAT  ${game.world.consumedFishCount.value}  '
+          'KO  ${game.world.playerDefeatCount.value}',
+          style: const TextStyle(
+            color: Color(0xFFB8FFF1),
+            fontSize: 11,
+            height: 1.4,
+            fontWeight: FontWeight.w800,
+          ),
+        );
+      },
     );
   }
 }

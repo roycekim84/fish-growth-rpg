@@ -39,6 +39,7 @@ class FishGame extends FlameGame<FishWorld> {
     species = await SpeciesRepository().loadAll();
     loadedSpeciesCount.value = species.length;
     await world.initializeSpecies(species);
+    world.playerDefeatCount.addListener(_handlePlayerDefeat);
     await camera.viewport.addAll([
       UnderwaterLightOverlay(logicalSize: Vector2(logicalWidth, logicalHeight)),
       DragInputSurface(
@@ -57,8 +58,13 @@ class FishGame extends FlameGame<FishWorld> {
     boostState.value = value;
   }
 
+  void _handlePlayerDefeat() {
+    setBoosting(false);
+  }
+
   @override
   void onRemove() {
+    world.playerDefeatCount.removeListener(_handlePlayerDefeat);
     loadedSpeciesCount.dispose();
     boostState.dispose();
     super.onRemove();
