@@ -1,5 +1,6 @@
 import 'package:fish_growth_rpg/domain/models/player_progress.dart';
 import 'package:fish_growth_rpg/game/fish_game.dart';
+import 'package:fish_growth_rpg/ui/theme/pixel_ui.dart';
 import 'package:flutter/material.dart';
 
 class HudOverlay extends StatelessWidget {
@@ -68,29 +69,12 @@ class _MenuButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        key: buttonKey,
-        width: 62,
-        height: 38,
-        decoration: BoxDecoration(
-          color: const Color(0xEE0A3A5A),
-          border: Border.all(color: const Color(0xFFFFD166), width: 2),
-          boxShadow: const [
-            BoxShadow(color: Color(0x99000000), offset: Offset(3, 3)),
-          ],
-        ),
-        alignment: Alignment.center,
-        child: Text(
-          label,
-          style: const TextStyle(
-            color: Color(0xFFFFF0B8),
-            fontSize: 10,
-            fontWeight: FontWeight.w900,
-          ),
-        ),
-      ),
+    return PixelButton(
+      key: buttonKey,
+      label: label,
+      width: 66,
+      height: 40,
+      onPressed: onTap,
     );
   }
 }
@@ -116,36 +100,28 @@ class _AutoHuntButton extends StatelessWidget {
           label: '반자동 사냥',
           child: GestureDetector(
             onTap: () => game.setAutoHunting(!enabled),
-            child: AnimatedContainer(
-              key: const ValueKey('auto-hunt-button'),
-              duration: const Duration(milliseconds: 100),
+            child: SizedBox(
               width: 72,
               height: 50,
-              decoration: BoxDecoration(
-                color: enabled
-                    ? const Color(0xEE3ACB8A)
-                    : const Color(0xDD0A3A5A),
-                border: Border.all(
-                  color: enabled
-                      ? const Color(0xFFFFF0B8)
-                      : const Color(0xFF61AFFF),
-                  width: 3,
-                ),
-                boxShadow: const [
-                  BoxShadow(color: Color(0x99000000), offset: Offset(4, 4)),
-                ],
-              ),
-              child: Center(
-                child: Text(
-                  enabled ? 'AUTO ON\n$status' : 'AUTO OFF\n$status',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: enabled
-                        ? const Color(0xFF052C22)
-                        : const Color(0xFFB8FFF1),
-                    fontSize: 9,
-                    height: 1.2,
-                    fontWeight: FontWeight.w900,
+              child: PixelPanel(
+                key: const ValueKey('auto-hunt-button'),
+                padding: EdgeInsets.zero,
+                accent: enabled ? PixelPalette.cream : PixelPalette.blue,
+                background: enabled
+                    ? const Color(0xFF3ACB8A)
+                    : PixelPalette.panel,
+                child: Center(
+                  child: Text(
+                    enabled ? '◆ AUTO ON\n$status' : '◇ AUTO OFF\n$status',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: enabled
+                          ? const Color(0xFF052C22)
+                          : PixelPalette.mint,
+                      fontSize: 9,
+                      height: 1.2,
+                      fontWeight: FontWeight.w900,
+                    ),
                   ),
                 ),
               ),
@@ -172,7 +148,7 @@ class _StatusHud extends StatelessWidget {
             game.world.player.progressChanges,
             game.world.recoverySystem.isRecovering,
           ]),
-          builder: (context, child) => _PixelPanel(
+          builder: (context, child) => PixelPanel(
             child: Row(
               children: [
                 const Expanded(
@@ -249,7 +225,7 @@ class _StatusHud extends StatelessWidget {
               return AnimatedOpacity(
                 opacity: message.isEmpty ? 0 : 1,
                 duration: const Duration(milliseconds: 100),
-                child: _PixelPanel(
+                child: PixelPanel(
                   child: Text(
                     message.isEmpty ? ' ' : message,
                     style: const TextStyle(
@@ -266,7 +242,7 @@ class _StatusHud extends StatelessWidget {
         const Spacer(),
         Align(
           alignment: Alignment.bottomLeft,
-          child: _PixelPanel(child: _PopulationStatus(game: game)),
+          child: PixelPanel(child: _PopulationStatus(game: game)),
         ),
       ],
     );
@@ -328,61 +304,47 @@ class _BoostButton extends StatelessWidget {
             onPointerDown: (_) => game.setBoosting(true),
             onPointerUp: (_) => game.setBoosting(false),
             onPointerCancel: (_) => game.setBoosting(false),
-            child: AnimatedContainer(
-              key: const ValueKey('boost-button'),
-              duration: const Duration(milliseconds: 80),
+            child: SizedBox(
               width: 72,
               height: 72,
-              decoration: BoxDecoration(
-                color: isBoosting
-                    ? const Color(0xEEFFB347)
-                    : const Color(0xDD0A3A5A),
-                border: Border.all(
-                  color: isBoosting
-                      ? const Color(0xFFFFF0B8)
-                      : const Color(0xFF32D6C4),
-                  width: 3,
-                ),
-                boxShadow: const [
-                  BoxShadow(color: Color(0x99000000), offset: Offset(4, 4)),
-                ],
-              ),
-              child: Center(
-                child: Text(
-                  isBoosting ? 'BOOST!' : 'BOOST',
-                  style: TextStyle(
-                    color: isBoosting
-                        ? const Color(0xFF452A00)
-                        : const Color(0xFFB8FFF1),
-                    fontSize: 11,
-                    fontWeight: FontWeight.w900,
-                  ),
+              child: PixelPanel(
+                key: const ValueKey('boost-button'),
+                padding: EdgeInsets.zero,
+                accent: isBoosting ? PixelPalette.cream : PixelPalette.teal,
+                background: isBoosting
+                    ? const Color(0xFFFFB347)
+                    : PixelPalette.panel,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      isBoosting ? '▶▶' : '▷▷',
+                      style: TextStyle(
+                        color: isBoosting
+                            ? const Color(0xFF452A00)
+                            : PixelPalette.teal,
+                        fontSize: 9,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                    Text(
+                      isBoosting ? 'BOOST!' : 'BOOST',
+                      style: TextStyle(
+                        color: isBoosting
+                            ? const Color(0xFF452A00)
+                            : PixelPalette.mint,
+                        fontSize: 10,
+                        height: 1.1,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
           ),
         );
       },
-    );
-  }
-}
-
-class _PixelPanel extends StatelessWidget {
-  const _PixelPanel({required this.child});
-
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: const Color(0xDD071A2D),
-        border: Border.all(color: const Color(0xFF32D6C4), width: 2),
-        boxShadow: const [
-          BoxShadow(color: Color(0x88000000), offset: Offset(3, 3)),
-        ],
-      ),
-      child: Padding(padding: const EdgeInsets.all(8), child: child),
     );
   }
 }
@@ -414,38 +376,10 @@ class _StatusBar extends StatelessWidget {
             ),
           ),
           Expanded(
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                color: const Color(0xFF07101D),
-                border: Border.all(color: const Color(0xFFB8FFF1)),
-              ),
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: FractionallySizedBox(
-                      widthFactor: value.clamp(0, 1),
-                      heightFactor: 1,
-                      child: ColoredBox(color: color),
-                    ),
-                  ),
-                  Center(
-                    child: Text(
-                      valueText,
-                      style: const TextStyle(
-                        color: Color(0xFFF2F8FF),
-                        fontSize: 8,
-                        height: 1,
-                        fontWeight: FontWeight.w900,
-                        shadows: [
-                          Shadow(color: Color(0xFF07101D), blurRadius: 2),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+            child: PixelProgressBar(
+              value: value,
+              valueText: valueText,
+              color: color,
             ),
           ),
         ],

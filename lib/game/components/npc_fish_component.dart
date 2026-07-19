@@ -98,6 +98,7 @@ class NpcFishComponent extends PixelFishComponent {
         ..strokeWidth = 1.5,
     );
     super.render(canvas);
+    _drawRelationMarker(canvas, relation, relationColor);
     if (_hitFlashRemaining > 0) {
       canvas.drawRect(
         Rect.fromLTWH(2, 2, size.x - 4, size.y - 4),
@@ -124,6 +125,27 @@ class NpcFishComponent extends PixelFishComponent {
       Rect.fromLTWH(size.x / 2 - 2, -5, 4, 3),
       Paint()..color = stateColor,
     );
+  }
+
+  void _drawRelationMarker(
+    Canvas canvas,
+    CombatRelation relation,
+    Color color,
+  ) {
+    final dark = Paint()..color = const Color(0xFF020A13);
+    final bright = Paint()..color = color;
+    canvas.drawRect(const Rect.fromLTWH(-2, -4, 10, 10), dark);
+    switch (relation) {
+      case CombatRelation.instantConsume:
+        canvas.drawRect(const Rect.fromLTWH(0, 0, 6, 2), bright);
+        canvas.drawRect(const Rect.fromLTWH(2, -2, 2, 6), bright);
+      case CombatRelation.mutualCombat:
+        canvas.drawRect(const Rect.fromLTWH(0, -1, 6, 2), bright);
+        canvas.drawRect(const Rect.fromLTWH(0, 3, 6, 2), bright);
+      case CombatRelation.playerInDanger:
+        canvas.drawRect(const Rect.fromLTWH(2, -2, 2, 5), bright);
+        canvas.drawRect(const Rect.fromLTWH(2, 5, 2, 2), bright);
+    }
   }
 
   bool takeDamage(double amount) {

@@ -1,8 +1,8 @@
 import 'package:fish_growth_rpg/domain/models/fish_species.dart';
 import 'package:fish_growth_rpg/domain/models/player_progress.dart';
-import 'package:fish_growth_rpg/game/components/player_fish_component.dart';
 import 'package:fish_growth_rpg/game/fish_game.dart';
 import 'package:fish_growth_rpg/game/fish_world.dart';
+import 'package:fish_growth_rpg/ui/theme/pixel_ui.dart';
 import 'package:flutter/material.dart';
 
 class SpeciesChangeOverlay extends StatefulWidget {
@@ -37,7 +37,9 @@ class _SpeciesChangeOverlayState extends State<SpeciesChangeOverlay> {
         minimum: const EdgeInsets.all(12),
         child: Column(
           children: [
-            _SpeciesHeader(
+            PixelHeader(
+              title: 'SPECIES CHANGE',
+              closeButtonKey: const ValueKey('species-close-button'),
               onClose: () =>
                   widget.game.closeModal(FishGame.speciesChangeOverlayId),
             ),
@@ -55,8 +57,8 @@ class _SpeciesChangeOverlayState extends State<SpeciesChangeOverlay> {
                   final current = progress.currentSpeciesId == id;
                   return _SpeciesOption(
                     key: ValueKey('species-option-$id'),
+                    speciesId: id,
                     name: species?.displayName ?? '푸른 치어',
-                    color: PlayerFishComponent.colorForSpecies(id),
                     unlocked: unlocked,
                     current: current,
                     selected: selectedSpeciesId == id,
@@ -93,24 +95,21 @@ class _SpeciesChangeOverlayState extends State<SpeciesChangeOverlay> {
             SizedBox(
               width: double.infinity,
               height: 50,
-              child: FilledButton(
+              child: PixelButton(
                 key: const ValueKey('confirm-species-change-button'),
+                label: isCurrent
+                    ? 'CURRENT SPECIES'
+                    : selectedUnlocked
+                    ? 'CHANGE SPECIES'
+                    : 'LOCKED',
                 onPressed: !selectedUnlocked || isCurrent
                     ? null
                     : _confirmChange,
-                style: FilledButton.styleFrom(
-                  backgroundColor: const Color(0xFF32D6C4),
-                  foregroundColor: const Color(0xFF052C22),
-                  shape: const RoundedRectangleBorder(),
-                ),
-                child: Text(
-                  isCurrent
-                      ? 'CURRENT SPECIES'
-                      : selectedUnlocked
-                      ? 'CHANGE SPECIES'
-                      : 'LOCKED',
-                  style: const TextStyle(fontWeight: FontWeight.w900),
-                ),
+                width: double.infinity,
+                height: 50,
+                accent: PixelPalette.teal,
+                activeColor: PixelPalette.teal,
+                foregroundColor: const Color(0xFF052C22),
               ),
             ),
           ],
@@ -136,46 +135,10 @@ class _SpeciesChangeOverlayState extends State<SpeciesChangeOverlay> {
   }
 }
 
-class _SpeciesHeader extends StatelessWidget {
-  const _SpeciesHeader({required this.onClose});
-
-  final VoidCallback onClose;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(12, 8, 6, 8),
-      decoration: BoxDecoration(
-        color: const Color(0xFF0A3A5A),
-        border: Border.all(color: const Color(0xFF32D6C4), width: 3),
-      ),
-      child: Row(
-        children: [
-          const Expanded(
-            child: Text(
-              'SPECIES CHANGE',
-              style: TextStyle(
-                color: Color(0xFFB8FFF1),
-                fontWeight: FontWeight.w900,
-                letterSpacing: 1.3,
-              ),
-            ),
-          ),
-          IconButton(
-            key: const ValueKey('species-close-button'),
-            onPressed: onClose,
-            icon: const Icon(Icons.close, color: Color(0xFFFFF0B8)),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 class _SpeciesOption extends StatelessWidget {
   const _SpeciesOption({
+    required this.speciesId,
     required this.name,
-    required this.color,
     required this.unlocked,
     required this.current,
     required this.selected,
@@ -185,8 +148,8 @@ class _SpeciesOption extends StatelessWidget {
     super.key,
   });
 
+  final String speciesId;
   final String name;
-  final Color color;
   final bool unlocked;
   final bool current;
   final bool selected;
@@ -198,46 +161,52 @@ class _SpeciesOption extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: Container(
+      child: SizedBox(
         width: 104,
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: selected ? const Color(0xFF164E68) : const Color(0xFF0A2B43),
-          border: Border.all(
-            color: selected ? const Color(0xFFFFF0B8) : const Color(0xFF315C72),
-            width: selected ? 3 : 2,
-          ),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: 44,
-              height: 24,
-              color: unlocked ? color : const Color(0xFF152A38),
-            ),
-            const SizedBox(height: 6),
-            Text(
-              name,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w900),
-            ),
-            Text(
-              current
-                  ? 'CURRENT'
-                  : count == null
-                  ? 'UNLOCKED'
-                  : '$count / $goal',
-              style: TextStyle(
-                color: unlocked
-                    ? const Color(0xFF5CFFB1)
-                    : const Color(0xFF78909C),
-                fontSize: 9,
-                fontWeight: FontWeight.w800,
+        child: PixelPanel(
+          shadow: false,
+          padding: const EdgeInsets.all(6),
+          accent: selected ? PixelPalette.cream : const Color(0xFF315C72),
+          background: selected
+              ? const Color(0xFF164E68)
+              : const Color(0xFF0A2B43),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              PixelFishPortrait(
+                speciesId: speciesId,
+                unlocked: unlocked,
+                width: 58,
+                height: 36,
               ),
-            ),
-          ],
+              const SizedBox(height: 3),
+              Text(
+                name,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+              Text(
+                current
+                    ? '■ CURRENT'
+                    : !unlocked
+                    ? '× ${count ?? 0} / ${goal ?? 100}'
+                    : '◆ UNLOCKED',
+                style: TextStyle(
+                  color: current
+                      ? PixelPalette.gold
+                      : unlocked
+                      ? PixelPalette.green
+                      : PixelPalette.muted,
+                  fontSize: 9,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -260,25 +229,29 @@ class _PreviewPanel extends StatelessWidget {
     final trait =
         species?.playerTraitDescription ?? '균형 잡힌 기본 능력으로 모든 상황에 대응하는 시작 종이다.';
 
-    return Container(
-      width: double.infinity,
+    final speciesId = species?.id ?? PlayerProgress.starterSpeciesId;
+    return PixelPanel(
       padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: const Color(0xEE0A2B43),
-        border: Border.all(color: const Color(0xFF32D6C4), width: 2),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            species?.displayName ?? '푸른 치어',
-            style: const TextStyle(
-              color: Color(0xFFFFF0B8),
-              fontSize: 18,
-              fontWeight: FontWeight.w900,
-            ),
+          Row(
+            children: [
+              PixelFishPortrait(speciesId: speciesId, width: 82, height: 54),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  species?.displayName ?? '푸른 치어',
+                  style: const TextStyle(
+                    color: PixelPalette.cream,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
           Text(
             'MAX HP  ${(progress.maxHp * hpMultiplier).round()}   '
             'STR  ${(progress.strength * strMultiplier).toStringAsFixed(1)}\n'

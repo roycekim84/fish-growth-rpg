@@ -1,5 +1,5 @@
-import 'package:fish_growth_rpg/game/components/player_fish_component.dart';
 import 'package:fish_growth_rpg/game/fish_game.dart';
+import 'package:fish_growth_rpg/ui/theme/pixel_ui.dart';
 import 'package:flutter/material.dart';
 
 class CollectionOverlay extends StatelessWidget {
@@ -15,8 +15,9 @@ class CollectionOverlay extends StatelessWidget {
         minimum: const EdgeInsets.all(12),
         child: Column(
           children: [
-            _Header(
+            PixelHeader(
               title: 'FISH COLLECTION',
+              closeButtonKey: const ValueKey('collection-close-button'),
               onClose: () => game.closeModal(FishGame.collectionOverlayId),
             ),
             const SizedBox(height: 10),
@@ -44,7 +45,7 @@ class CollectionOverlay extends StatelessWidget {
                         goal: species.unlockEatCount,
                         unlocked: unlocked,
                         discovered: discovered,
-                        color: PlayerFishComponent.colorForSpecies(species.id),
+                        speciesId: species.id,
                         stats:
                             'HP ${species.maxHp.toInt()}  STR ${species.strength.toInt()}  '
                             'SPD ${species.speed.toStringAsFixed(1)}  SIZE ${species.size.toStringAsFixed(1)}',
@@ -61,43 +62,6 @@ class CollectionOverlay extends StatelessWidget {
   }
 }
 
-class _Header extends StatelessWidget {
-  const _Header({required this.title, required this.onClose});
-
-  final String title;
-  final VoidCallback onClose;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(12, 8, 6, 8),
-      decoration: BoxDecoration(
-        color: const Color(0xFF0A3A5A),
-        border: Border.all(color: const Color(0xFF32D6C4), width: 3),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              title,
-              style: const TextStyle(
-                color: Color(0xFFB8FFF1),
-                fontWeight: FontWeight.w900,
-                letterSpacing: 1.3,
-              ),
-            ),
-          ),
-          IconButton(
-            key: const ValueKey('collection-close-button'),
-            onPressed: onClose,
-            icon: const Icon(Icons.close, color: Color(0xFFFFF0B8)),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 class _CollectionCard extends StatelessWidget {
   const _CollectionCard({
     required this.name,
@@ -106,7 +70,7 @@ class _CollectionCard extends StatelessWidget {
     required this.goal,
     required this.unlocked,
     required this.discovered,
-    required this.color,
+    required this.speciesId,
     required this.stats,
   });
 
@@ -116,36 +80,59 @@ class _CollectionCard extends StatelessWidget {
   final int goal;
   final bool unlocked;
   final bool discovered;
-  final Color color;
+  final String speciesId;
   final String stats;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return PixelPanel(
       padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: const Color(0xEE0A2B43),
-        border: Border.all(
-          color: unlocked ? const Color(0xFF5CFFB1) : const Color(0xFF315C72),
-          width: 2,
-        ),
-      ),
+      accent: unlocked ? PixelPalette.green : const Color(0xFF315C72),
+      shadow: false,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: 54,
-            height: 40,
-            decoration: BoxDecoration(
-              color: discovered ? color : const Color(0xFF152A38),
-              border: Border.all(color: const Color(0xFFB8FFF1), width: 2),
-            ),
-            child: Icon(
-              unlocked ? Icons.check : Icons.lock,
-              color: unlocked
-                  ? const Color(0xFF052C22)
-                  : const Color(0xFF78909C),
-              size: 18,
+          Semantics(
+            label: discovered ? '$name 발견됨' : '$name 미발견',
+            child: PixelPanel(
+              padding: const EdgeInsets.all(2),
+              accent: discovered ? PixelPalette.mint : PixelPalette.muted,
+              background: const Color(0xFF07101D),
+              shadow: false,
+              child: Stack(
+                children: [
+                  PixelFishPortrait(
+                    speciesId: speciesId,
+                    unlocked: discovered,
+                    width: 58,
+                    height: 42,
+                  ),
+                  Positioned(
+                    right: 1,
+                    bottom: 1,
+                    child: ColoredBox(
+                      color: unlocked ? PixelPalette.green : PixelPalette.ink,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 3),
+                        child: Text(
+                          unlocked
+                              ? '✓'
+                              : discovered
+                              ? '!'
+                              : '?',
+                          style: TextStyle(
+                            color: unlocked
+                                ? const Color(0xFF052C22)
+                                : PixelPalette.muted,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
           const SizedBox(width: 10),
@@ -156,7 +143,7 @@ class _CollectionCard extends StatelessWidget {
                 Text(
                   '$name  $count / $goal',
                   style: const TextStyle(
-                    color: Color(0xFFFFF0B8),
+                    color: PixelPalette.cream,
                     fontWeight: FontWeight.w900,
                   ),
                 ),
@@ -164,9 +151,7 @@ class _CollectionCard extends StatelessWidget {
                 Text(
                   unlocked ? 'SPECIES CHANGE READY' : '${goal - count} LEFT',
                   style: TextStyle(
-                    color: unlocked
-                        ? const Color(0xFF5CFFB1)
-                        : const Color(0xFF61AFFF),
+                    color: unlocked ? PixelPalette.green : PixelPalette.blue,
                     fontSize: 11,
                     fontWeight: FontWeight.w800,
                   ),
