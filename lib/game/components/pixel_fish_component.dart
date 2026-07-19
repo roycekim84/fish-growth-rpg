@@ -13,7 +13,7 @@ class PixelFishComponent extends PositionComponent {
          anchor: Anchor.center,
        );
 
-  final Color bodyColor;
+  Color bodyColor;
   final double scaleFactor;
   final bool isPlayer;
 

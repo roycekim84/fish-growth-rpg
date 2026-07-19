@@ -25,6 +25,8 @@ class FishGame extends FlameGame<FishWorld> {
 
   static const double logicalWidth = 360;
   static const double logicalHeight = 640;
+  static const String collectionOverlayId = 'collection';
+  static const String speciesChangeOverlayId = 'species-change';
 
   final ValueNotifier<int> loadedSpeciesCount = ValueNotifier<int>(0);
   final ValueNotifier<bool> boostState = ValueNotifier<bool>(false);
@@ -75,6 +77,38 @@ class FishGame extends FlameGame<FishWorld> {
     }
     world.autoHuntSystem.setEnabled(false, stoppedReason: 'MANUAL');
     world.setCombatMessage('AUTO MANUAL');
+  }
+
+  void openCollection() {
+    _openModal(collectionOverlayId);
+  }
+
+  bool openSpeciesChange() {
+    if (world.recoverySystem.isCombatLocked) {
+      world.setCombatMessage('CANNOT CHANGE IN COMBAT');
+      return false;
+    }
+    _openModal(speciesChangeOverlayId);
+    return true;
+  }
+
+  void closeModal(String overlayId) {
+    overlays.remove(overlayId);
+    if (!overlays.isActive(collectionOverlayId) &&
+        !overlays.isActive(speciesChangeOverlayId)) {
+      resumeEngine();
+    }
+  }
+
+  SpeciesChangeResult changeSpecies(String speciesId) {
+    return world.changeSpecies(speciesId);
+  }
+
+  void _openModal(String overlayId) {
+    setBoosting(false);
+    world.autoHuntSystem.setEnabled(false);
+    pauseEngine();
+    overlays.add(overlayId);
   }
 
   void _handlePlayerDefeat() {

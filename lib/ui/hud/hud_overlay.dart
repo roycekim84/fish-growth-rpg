@@ -27,7 +27,69 @@ class HudOverlay extends StatelessWidget {
               ],
             ),
           ),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 6),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _MenuButton(
+                    buttonKey: const ValueKey('collection-button'),
+                    label: 'BOOK',
+                    onTap: game.openCollection,
+                  ),
+                  const SizedBox(width: 8),
+                  _MenuButton(
+                    buttonKey: const ValueKey('species-change-button'),
+                    label: 'CHANGE',
+                    onTap: game.openSpeciesChange,
+                  ),
+                ],
+              ),
+            ),
+          ),
         ],
+      ),
+    );
+  }
+}
+
+class _MenuButton extends StatelessWidget {
+  const _MenuButton({
+    required this.buttonKey,
+    required this.label,
+    required this.onTap,
+  });
+
+  final Key buttonKey;
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        key: buttonKey,
+        width: 62,
+        height: 38,
+        decoration: BoxDecoration(
+          color: const Color(0xEE0A3A5A),
+          border: Border.all(color: const Color(0xFFFFD166), width: 2),
+          boxShadow: const [
+            BoxShadow(color: Color(0x99000000), offset: Offset(3, 3)),
+          ],
+        ),
+        alignment: Alignment.center,
+        child: Text(
+          label,
+          style: const TextStyle(
+            color: Color(0xFFFFF0B8),
+            fontSize: 10,
+            fontWeight: FontWeight.w900,
+          ),
+        ),
       ),
     );
   }
@@ -229,6 +291,7 @@ class _PopulationStatus extends StatelessWidget {
       builder: (context, child) {
         return Text(
           'SPECIES  ${game.loadedSpeciesCount.value} / 3\n'
+          'FORM  ${game.world.player.currentSpeciesName}\n'
           'NPC  ${game.world.npcCount.value} / 45\n'
           'EAT  ${game.world.player.progress.totalEaten}  '
           'KO  ${game.world.playerDefeatCount.value}\n'

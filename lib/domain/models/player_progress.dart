@@ -3,9 +3,15 @@ class PlayerProgress {
     this.level = 1,
     this.exp = 0,
     this.fullness = 50,
+    this.currentSpeciesId = starterSpeciesId,
     Map<String, int>? eatenCountBySpeciesId,
-  }) : eatenCountBySpeciesId = {...?eatenCountBySpeciesId};
+    Set<String>? unlockedSpeciesIds,
+    Set<String>? discoveredSpeciesIds,
+  }) : eatenCountBySpeciesId = {...?eatenCountBySpeciesId},
+       unlockedSpeciesIds = {starterSpeciesId, ...?unlockedSpeciesIds},
+       discoveredSpeciesIds = {...?discoveredSpeciesIds};
 
+  static const String starterSpeciesId = 'starter_fish';
   static const double maxFullness = 100;
   static const double baseMaxHp = 40;
   static const double baseStrength = 3;
@@ -15,7 +21,10 @@ class PlayerProgress {
   int level;
   int exp;
   double fullness;
+  String currentSpeciesId;
   final Map<String, int> eatenCountBySpeciesId;
+  final Set<String> unlockedSpeciesIds;
+  final Set<String> discoveredSpeciesIds;
 
   int get requiredExp => 20 + level * 10;
   double get maxHp => baseMaxHp + (level - 1) * 5;
@@ -28,6 +37,7 @@ class PlayerProgress {
     required String speciesId,
     required int expReward,
     required double fullnessReward,
+    int unlockEatCount = 100,
   }) {
     final previousLevel = level;
     final previousMaxHp = maxHp;
@@ -39,6 +49,13 @@ class PlayerProgress {
       (count) => count + 1,
       ifAbsent: () => 1,
     );
+    discoveredSpeciesIds.add(speciesId);
+    final shouldUnlock =
+        eatenCountBySpeciesId[speciesId]! >= unlockEatCount &&
+        !unlockedSpeciesIds.contains(speciesId);
+    if (shouldUnlock) {
+      unlockedSpeciesIds.add(speciesId);
+    }
 
     while (exp >= requiredExp) {
       exp -= requiredExp;
@@ -51,7 +68,20 @@ class PlayerProgress {
       expGained: expReward,
       fullnessGained: fullness - previousFullness,
       speciesEatCount: eatenCountBySpeciesId[speciesId]!,
+      newlyUnlockedSpeciesId: shouldUnlock ? speciesId : null,
     );
+  }
+
+  bool isSpeciesUnlocked(String speciesId) {
+    return unlockedSpeciesIds.contains(speciesId);
+  }
+
+  bool changeSpecies(String speciesId) {
+    if (!isSpeciesUnlocked(speciesId)) {
+      return false;
+    }
+    currentSpeciesId = speciesId;
+    return true;
   }
 
   double consumeFullness(double requestedAmount) {
@@ -71,6 +101,7 @@ class ConsumptionResult {
     required this.expGained,
     required this.fullnessGained,
     required this.speciesEatCount,
+    required this.newlyUnlockedSpeciesId,
   });
 
   final int levelsGained;
@@ -78,6 +109,8 @@ class ConsumptionResult {
   final int expGained;
   final double fullnessGained;
   final int speciesEatCount;
+  final String? newlyUnlockedSpeciesId;
 
   bool get leveledUp => levelsGained > 0;
+  bool get unlockedSpecies => newlyUnlockedSpeciesId != null;
 }

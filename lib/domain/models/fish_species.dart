@@ -15,6 +15,12 @@ class FishSpecies {
     required this.fullnessReward,
     required this.unlockEatCount,
     required this.maxSpawnCount,
+    this.playerMaxHpMultiplier = 1,
+    this.playerStrengthMultiplier = 1,
+    this.playerSpeedMultiplier = 1,
+    this.playerSizeMultiplier = 1,
+    this.playerWeightMultiplier = 1,
+    this.playerTraitDescription = '',
   });
 
   factory FishSpecies.fromJson(Map<String, dynamic> json) {
@@ -34,6 +40,17 @@ class FishSpecies {
       fullnessReward: (json['fullnessReward'] as num).toDouble(),
       unlockEatCount: json['unlockEatCount'] as int,
       maxSpawnCount: json['maxSpawnCount'] as int,
+      playerMaxHpMultiplier:
+          (json['playerMaxHPMultiplier'] as num?)?.toDouble() ?? 1,
+      playerStrengthMultiplier:
+          (json['playerStrengthMultiplier'] as num?)?.toDouble() ?? 1,
+      playerSpeedMultiplier:
+          (json['playerSpeedMultiplier'] as num?)?.toDouble() ?? 1,
+      playerSizeMultiplier:
+          (json['playerSizeMultiplier'] as num?)?.toDouble() ?? 1,
+      playerWeightMultiplier:
+          (json['playerWeightMultiplier'] as num?)?.toDouble() ?? 1,
+      playerTraitDescription: json['playerTraitDescription'] as String? ?? '',
     );
   }
 
@@ -52,4 +69,10 @@ class FishSpecies {
   final double fullnessReward;
   final int unlockEatCount;
   final int maxSpawnCount;
+  final double playerMaxHpMultiplier;
+  final double playerStrengthMultiplier;
+  final double playerSpeedMultiplier;
+  final double playerSizeMultiplier;
+  final double playerWeightMultiplier;
+  final String playerTraitDescription;
 }

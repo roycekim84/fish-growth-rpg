@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:fish_growth_rpg/domain/models/player_progress.dart';
 import 'package:fish_growth_rpg/game/components/field_boundary_component.dart';
 import 'package:fish_growth_rpg/game/components/ocean_backdrop.dart';
 import 'package:fish_growth_rpg/game/components/npc_fish_component.dart';
@@ -48,10 +49,12 @@ class FishWorld extends World with HasCollisionDetection {
   late final RecoverySystem recoverySystem;
 
   NpcSpawnSystem? _spawnSystem;
+  List<FishSpecies> _species = const [];
   double _combatMessageRemaining = 0;
 
   List<NpcFishComponent> get activeNpcFish =>
       _spawnSystem?.activeFish ?? const [];
+  List<FishSpecies> get species => _species;
 
   @override
   Future<void> onLoad() async {
@@ -86,6 +89,10 @@ class FishWorld extends World with HasCollisionDetection {
   void _handleFishConsumed(NpcFishComponent fish) {
     consumedFishCount.value++;
     final result = player.consume(fish.species);
+    if (result.unlockedSpecies) {
+      setCombatMessage('SPECIES UNLOCK!  ${fish.species.displayName}');
+      return;
+    }
     if (result.leveledUp) {
       setCombatMessage('LEVEL UP!  LV.${player.progress.level}');
       return;
@@ -99,9 +106,36 @@ class FishWorld extends World with HasCollisionDetection {
     if (_spawnSystem != null) {
       return;
     }
+    _species = List.unmodifiable(species);
+    final currentSpeciesId = player.progress.currentSpeciesId;
+    if (currentSpeciesId != PlayerProgress.starterSpeciesId) {
+      final current = species
+          .where((item) => item.id == currentSpeciesId)
+          .firstOrNull;
+      player.equipSpecies(current);
+    }
     final system = NpcSpawnSystem(fishWorld: this, species: species);
     _spawnSystem = system;
     await add(system);
+  }
+
+  SpeciesChangeResult changeSpecies(String speciesId) {
+    if (recoverySystem.isCombatLocked) {
+      setCombatMessage('CANNOT CHANGE IN COMBAT');
+      return SpeciesChangeResult.inCombat;
+    }
+    final species = speciesId == PlayerProgress.starterSpeciesId
+        ? null
+        : _species.where((item) => item.id == speciesId).firstOrNull;
+    if (speciesId != PlayerProgress.starterSpeciesId && species == null) {
+      return SpeciesChangeResult.notFound;
+    }
+    if (!player.equipSpecies(species)) {
+      setCombatMessage('SPECIES LOCKED');
+      return SpeciesChangeResult.locked;
+    }
+    setCombatMessage('CHANGED  ${player.currentSpeciesName}');
+    return SpeciesChangeResult.success;
   }
 
   @override
@@ -113,3 +147,5 @@ class FishWorld extends World with HasCollisionDetection {
     super.onRemove();
   }
 }
+
+enum SpeciesChangeResult { success, locked, inCombat, notFound }

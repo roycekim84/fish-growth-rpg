@@ -202,6 +202,17 @@ M5 생존·성장 기준:
 - HUD는 HP/FULL/EXP 실제 값과 레벨·STR·Size를 `ValueNotifier`로 반영
 - Size 성장은 플레이어 렌더 scale과 충돌 hitbox에 함께 적용
 
+M6 종 수집·종변화 기준:
+
+- `PlayerProgress`가 현재 종, 해금 종, 발견 종과 종별 포식 카운트를 소유
+- 시작 종 `starter_fish`는 항상 해금하며 NPC 종은 데이터의 `unlockEatCount` 100을 적용
+- 100번째 포식에서만 해금 이벤트를 발생시키고 이후 포식은 카운트만 증가
+- 최종 플레이어 스탯은 영구 레벨 성장값에 현재 종의 배율을 곱해 계산
+- 종변화 시 기존 HP 비율을 새 MaxHP에 적용하고 속도·외형·충돌 크기를 즉시 갱신
+- `RecoverySystem`의 최근 전투 1초 상태를 종변화 제한에도 공유
+- 도감과 종변화는 Flutter 전체 화면 오버레이이며 표시 중 Flame 엔진을 일시 정지
+- 도감은 미발견 종을 실루엣으로 표시하고 종변화 화면은 잠금·현재·선택 상태를 구분
+
 ## 10. 플랫폼 및 출시 준비
 
 - Android application ID와 iOS bundle ID는 M1에서 확정

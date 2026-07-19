@@ -1,4 +1,5 @@
 import 'package:fish_growth_rpg/game/fish_game.dart';
+import 'package:fish_growth_rpg/game/fish_world.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -37,5 +38,27 @@ void main() {
     await tester.pump(const Duration(milliseconds: 1100));
 
     expect(game.world.activeNpcFish, hasLength(45));
+
+    game.world.player.progress.unlockedSpeciesIds.add('puffer_fish');
+    game.world.player.progress.unlockedSpeciesIds.add('hunter_fish');
+    game.world.player.takeDamage(10);
+    final hpRatioBefore = game.world.player.hp.value / game.world.player.maxHp;
+
+    expect(
+      game.world.changeSpecies('puffer_fish'),
+      SpeciesChangeResult.success,
+    );
+    expect(game.world.player.progress.currentSpeciesId, 'puffer_fish');
+    expect(
+      game.world.player.hp.value / game.world.player.maxHp,
+      closeTo(hpRatioBefore, 0.0001),
+    );
+
+    game.world.recoverySystem.markCombat();
+    expect(
+      game.world.changeSpecies('hunter_fish'),
+      SpeciesChangeResult.inCombat,
+    );
+    expect(game.world.player.progress.currentSpeciesId, 'puffer_fish');
   });
 }

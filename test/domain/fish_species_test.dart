@@ -19,11 +19,20 @@ void main() {
       'fullnessReward': 10,
       'unlockEatCount': 100,
       'maxSpawnCount': 30,
+      'playerMaxHPMultiplier': 0.75,
+      'playerStrengthMultiplier': 0.8,
+      'playerSpeedMultiplier': 1.2,
+      'playerSizeMultiplier': 0.85,
+      'playerWeightMultiplier': 0.7,
+      'playerTraitDescription': '빠른 종',
     });
 
     expect(species.id, 'small_fish');
     expect(species.maxHp, 10);
     expect(species.speed, 2.2);
     expect(species.unlockEatCount, 100);
+    expect(species.playerMaxHpMultiplier, 0.75);
+    expect(species.playerSpeedMultiplier, 1.2);
+    expect(species.playerTraitDescription, '빠른 종');
   });
 }

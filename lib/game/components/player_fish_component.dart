@@ -28,10 +28,17 @@ class PlayerFishComponent extends PixelFishComponent with CollisionCallbacks {
   void Function(PositionComponent other)? onContactStart;
   void Function(PositionComponent other)? onContactEnd;
 
-  double get gameplaySize => progress.size;
-  double get maxHp => progress.maxHp;
-  double get strength => progress.strength;
-  double get weight => progress.weight;
+  FishSpecies? currentSpecies;
+
+  String get currentSpeciesName => currentSpecies?.displayName ?? '푸른 치어';
+  double get gameplaySize =>
+      progress.size * (currentSpecies?.playerSizeMultiplier ?? 1);
+  double get maxHp =>
+      progress.maxHp * (currentSpecies?.playerMaxHpMultiplier ?? 1);
+  double get strength =>
+      progress.strength * (currentSpecies?.playerStrengthMultiplier ?? 1);
+  double get weight =>
+      progress.weight * (currentSpecies?.playerWeightMultiplier ?? 1);
   bool get isAlive => hp.value > 0;
 
   double _facing = 1;
@@ -122,19 +129,40 @@ class PlayerFishComponent extends PixelFishComponent with CollisionCallbacks {
   }
 
   ConsumptionResult consume(FishSpecies species) {
+    final previousMaxHp = maxHp;
     final result = progress.recordConsumption(
       speciesId: species.id,
       expReward: species.expReward,
       fullnessReward: species.fullnessReward,
+      unlockEatCount: species.unlockEatCount,
     );
-    if (result.maxHpGained > 0) {
-      hp.value = (hp.value + result.maxHpGained).clamp(0, maxHp);
+    final finalMaxHpGained = maxHp - previousMaxHp;
+    if (finalMaxHpGained > 0) {
+      hp.value = (hp.value + finalMaxHpGained).clamp(0, maxHp);
     }
     if (result.leveledUp) {
       _levelFlashRemaining = 1.2;
     }
     progressChanges.value++;
     return result;
+  }
+
+  bool equipSpecies(FishSpecies? species) {
+    final speciesId = species?.id ?? PlayerProgress.starterSpeciesId;
+    if (!progress.isSpeciesUnlocked(speciesId)) {
+      return false;
+    }
+    final hpRatio = maxHp <= 0 ? 1.0 : hp.value / maxHp;
+    if (!progress.changeSpecies(speciesId)) {
+      return false;
+    }
+    currentSpecies = species;
+    movement.setSpeciesSpeedMultiplier(species?.playerSpeedMultiplier ?? 1);
+    bodyColor = colorForSpecies(speciesId);
+    hp.value = (maxHp * hpRatio).clamp(1, maxHp);
+    _levelFlashRemaining = 1.2;
+    progressChanges.value++;
+    return true;
   }
 
   double recover(double dt) {
@@ -224,5 +252,14 @@ class PlayerFishComponent extends PixelFishComponent with CollisionCallbacks {
   void _updateGrowthScale() {
     final growthScale = gameplaySize / PlayerProgress.baseSize;
     scale.setValues(_facing * growthScale, growthScale);
+  }
+
+  static Color colorForSpecies(String speciesId) {
+    return switch (speciesId) {
+      'small_fish' => const Color(0xFFFFD166),
+      'puffer_fish' => const Color(0xFFFF7B9C),
+      'hunter_fish' => const Color(0xFF8F9CFF),
+      _ => const Color(0xFF38E8D0),
+    };
   }
 }

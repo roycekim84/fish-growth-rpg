@@ -50,5 +50,36 @@ void main() {
       expect(progress.consumeFullness(5), 2);
       expect(progress.fullness, 0);
     });
+
+    test('unlocks a species once at the 100th consumption', () {
+      final progress = PlayerProgress(
+        eatenCountBySpeciesId: {'puffer_fish': 99},
+      );
+
+      final unlocked = progress.recordConsumption(
+        speciesId: 'puffer_fish',
+        expReward: 0,
+        fullnessReward: 0,
+        unlockEatCount: 100,
+      );
+      final repeated = progress.recordConsumption(
+        speciesId: 'puffer_fish',
+        expReward: 0,
+        fullnessReward: 0,
+        unlockEatCount: 100,
+      );
+
+      expect(unlocked.speciesEatCount, 100);
+      expect(unlocked.newlyUnlockedSpeciesId, 'puffer_fish');
+      expect(progress.isSpeciesUnlocked('puffer_fish'), isTrue);
+      expect(repeated.newlyUnlockedSpeciesId, isNull);
+    });
+
+    test('rejects changing to a locked species', () {
+      final progress = PlayerProgress();
+
+      expect(progress.changeSpecies('hunter_fish'), isFalse);
+      expect(progress.currentSpeciesId, PlayerProgress.starterSpeciesId);
+    });
   });
 }

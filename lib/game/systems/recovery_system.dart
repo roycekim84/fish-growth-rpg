@@ -24,6 +24,7 @@ class RecoverySystem extends Component {
   double _lastCombatAt = double.negativeInfinity;
 
   double get idleDuration => _idleDuration;
+  bool get isCombatLocked => _elapsed - _lastCombatAt < combatCooldown;
 
   void markCombat() {
     _lastCombatAt = _elapsed;

@@ -32,5 +32,21 @@ void main() {
     await gesture.up();
     await tester.pump();
     expect(find.text('BOOST'), findsOneWidget);
+
+    final collectionButton = find.byKey(const ValueKey('collection-button'));
+    expect(collectionButton, findsOneWidget);
+    await tester.tap(collectionButton);
+    await tester.pump();
+    expect(find.text('FISH COLLECTION'), findsOneWidget);
+    expect(find.textContaining('0 / 100'), findsWidgets);
+
+    await tester.tap(find.byKey(const ValueKey('collection-close-button')));
+    await tester.pump();
+    final speciesButton = find.byKey(const ValueKey('species-change-button'));
+    await tester.tap(speciesButton);
+    await tester.pump();
+    expect(find.text('SPECIES CHANGE'), findsOneWidget);
+    expect(find.text('푸른 치어'), findsWidgets);
+    expect(find.text('CURRENT SPECIES'), findsOneWidget);
   });
 }

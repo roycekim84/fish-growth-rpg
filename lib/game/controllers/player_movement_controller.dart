@@ -26,15 +26,18 @@ class PlayerMovementController {
   Vector2? _dragAnchor;
   bool _isBoosting = false;
   double _automaticSpeedMultiplier = 0.75;
+  double _speciesSpeedMultiplier = 1;
 
   bool get isDragging => _dragAnchor != null;
   bool get isBoosting => _isBoosting;
   bool get isAutomaticSteering => !automaticDirection.isZero() && !isDragging;
   double get currentMaxSpeed {
     if (isAutomaticSteering) {
-      return maxSpeed * _automaticSpeedMultiplier;
+      return maxSpeed * _speciesSpeedMultiplier * _automaticSpeedMultiplier;
     }
-    return maxSpeed * (isBoosting ? boostMultiplier : 1);
+    return maxSpeed *
+        _speciesSpeedMultiplier *
+        (isBoosting ? boostMultiplier : 1);
   }
 
   void beginDrag(Vector2 position) {
@@ -68,6 +71,10 @@ class PlayerMovementController {
 
   void setBoosting(bool value) {
     _isBoosting = value;
+  }
+
+  void setSpeciesSpeedMultiplier(double value) {
+    _speciesSpeedMultiplier = value.clamp(0.1, 3);
   }
 
   void setAutomaticSteering(

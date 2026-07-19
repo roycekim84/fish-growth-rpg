@@ -449,6 +449,15 @@ newHP = clamp(newMaxHP * hpRatio, 1, newMaxHP)
 
 체력 비율을 유지하면 종변화가 무료 즉시 회복 수단이 되는 것을 방지할 수 있다.
 
+M6 구현 기준선:
+
+- 시작 종 ID는 `starter_fish`이며 항상 해금한다.
+- SmallFish 배율: MaxHP 0.75, STR 0.75, SPD 1.20, Size 0.80, Weight 0.70
+- PufferFish 배율: MaxHP 1.35, STR 1.00, SPD 0.78, Size 1.15, Weight 1.40
+- HunterFish 배율: MaxHP 1.10, STR 1.35, SPD 1.10, Size 1.25, Weight 1.25
+- 전투 직후 1초 동안 종변화를 제한한다.
+- 도감과 종변화 오버레이를 표시하는 동안 게임 월드를 일시 정지한다.
+
 ### 12.5 종 특성 확장 구조
 
 초기에는 배율 차이만 구현해도 되지만, 다음 인터페이스를 고려한다.

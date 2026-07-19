@@ -14,7 +14,13 @@
     "expReward": 5,
     "fullnessReward": 10,
     "unlockEatCount": 100,
-    "maxSpawnCount": 30
+    "maxSpawnCount": 30,
+    "playerMaxHPMultiplier": 0.75,
+    "playerStrengthMultiplier": 0.75,
+    "playerSpeedMultiplier": 1.2,
+    "playerSizeMultiplier": 0.8,
+    "playerWeightMultiplier": 0.7,
+    "playerTraitDescription": "작고 약하지만 가장 빠르게 방향을 바꾸며 이동한다."
   },
   {
     "id": "puffer_fish",
@@ -31,7 +37,13 @@
     "expReward": 20,
     "fullnessReward": 25,
     "unlockEatCount": 100,
-    "maxSpawnCount": 10
+    "maxSpawnCount": 10,
+    "playerMaxHPMultiplier": 1.35,
+    "playerStrengthMultiplier": 1.0,
+    "playerSpeedMultiplier": 0.78,
+    "playerSizeMultiplier": 1.15,
+    "playerWeightMultiplier": 1.4,
+    "playerTraitDescription": "느리지만 높은 체력과 무게로 버티는 방어형이다."
   },
   {
     "id": "hunter_fish",
@@ -48,6 +60,12 @@
     "expReward": 40,
     "fullnessReward": 35,
     "unlockEatCount": 100,
-    "maxSpawnCount": 5
+    "maxSpawnCount": 5,
+    "playerMaxHPMultiplier": 1.1,
+    "playerStrengthMultiplier": 1.35,
+    "playerSpeedMultiplier": 1.1,
+    "playerSizeMultiplier": 1.25,
+    "playerWeightMultiplier": 1.25,
+    "playerTraitDescription": "높은 공격력과 크기로 적극적인 사냥에 유리하다."
   }
 ]

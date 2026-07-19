@@ -64,6 +64,17 @@ void main() {
     expect(player.hp.value, closeTo(31.6, 0.001));
     expect(player.progress.fullness, 0);
   });
+
+  test('exposes the one second combat lock for species change', () {
+    final player = _player();
+    final recovery = RecoverySystem(player: player, onRecoveryStarted: () {});
+
+    recovery.markCombat();
+    expect(recovery.isCombatLocked, isTrue);
+
+    recovery.update(1.01);
+    expect(recovery.isCombatLocked, isFalse);
+  });
 }
 
 PlayerFishComponent _player({double fullness = 50}) {
