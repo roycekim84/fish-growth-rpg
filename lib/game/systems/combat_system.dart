@@ -1,9 +1,8 @@
-import 'dart:ui';
-
 import 'package:fish_growth_rpg/domain/rules/combat_rules.dart';
 import 'package:fish_growth_rpg/game/components/impact_burst_component.dart';
 import 'package:fish_growth_rpg/game/components/npc_fish_component.dart';
 import 'package:fish_growth_rpg/game/components/player_fish_component.dart';
+import 'package:fish_growth_rpg/game/services/game_feedback_service.dart';
 import 'package:flame/components.dart';
 
 class CombatSystem extends Component {
@@ -13,6 +12,7 @@ class CombatSystem extends Component {
     required this.onPlayerDefeated,
     required this.onCombatMessage,
     required this.onCombatOccurred,
+    required this.onFeedback,
     this.attackInterval = 0.75,
   });
 
@@ -21,6 +21,7 @@ class CombatSystem extends Component {
   final void Function() onPlayerDefeated;
   final void Function(String message) onCombatMessage;
   final void Function() onCombatOccurred;
+  final void Function(GameFeedbackEvent event) onFeedback;
   final double attackInterval;
 
   final Set<NpcFishComponent> _activeContacts = {};
@@ -95,7 +96,8 @@ class CombatSystem extends Component {
       case CombatRelation.mutualCombat:
         onCombatOccurred();
         final defeated = fish.takeDamage(player.strength);
-        _impact(fish.position, const Color(0xFFFFD166));
+        _impact(fish.position, ImpactEffect.bite);
+        onFeedback(GameFeedbackEvent.bite);
         onCombatMessage(
           '-${player.strength.toInt()} ${fish.species.displayName}',
         );
@@ -111,7 +113,10 @@ class CombatSystem extends Component {
       return;
     }
     final defeated = player.takeDamage(damage);
-    _impact(player.position, const Color(0xFFFF5C72));
+    _impact(player.position, ImpactEffect.hit);
+    onFeedback(
+      defeated ? GameFeedbackEvent.defeat : GameFeedbackEvent.playerHit,
+    );
     onCombatMessage('-${damage.toInt()} HP');
     if (!defeated) {
       return;
@@ -129,7 +134,8 @@ class CombatSystem extends Component {
     if (!fish.markConsumed()) {
       return;
     }
-    _impact(fish.position, const Color(0xFF5CFFB1));
+    _impact(fish.position, ImpactEffect.consume);
+    onFeedback(GameFeedbackEvent.consume);
     onCombatMessage('ATE ${fish.species.displayName}');
     onFishConsumed(fish);
     _forget(fish);
@@ -141,7 +147,9 @@ class CombatSystem extends Component {
     _nextAttackAt.remove(fish);
   }
 
-  void _impact(Vector2 position, Color color) {
-    parent?.add(ImpactBurstComponent(position: position.clone(), color: color));
+  void _impact(Vector2 position, ImpactEffect effect) {
+    parent?.add(
+      ImpactBurstComponent(position: position.clone(), effect: effect),
+    );
   }
 }

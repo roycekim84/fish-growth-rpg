@@ -8,6 +8,7 @@ import 'package:fish_growth_rpg/domain/models/player_save_data.dart';
 import 'package:fish_growth_rpg/game/components/drag_input_surface.dart';
 import 'package:fish_growth_rpg/game/components/underwater_light_overlay.dart';
 import 'package:fish_growth_rpg/game/fish_world.dart';
+import 'package:fish_growth_rpg/game/services/game_feedback_service.dart';
 import 'package:flame/camera.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/foundation.dart';
@@ -16,27 +17,31 @@ class FishGame extends FlameGame<FishWorld> {
   factory FishGame({
     PlayerSaveRepository saveRepository = const NoopPlayerSaveRepository(),
     DateTime Function()? now,
+    GameFeedbackService? feedbackService,
   }) {
-    final fishWorld = FishWorld();
+    final feedback = feedbackService ?? DeviceGameFeedbackService();
+    final fishWorld = FishWorld(onFeedback: feedback.trigger);
     final camera = CameraComponent.withFixedResolution(
       world: fishWorld,
       width: logicalWidth,
       height: logicalHeight,
     );
     return FishGame._(
-      world: fishWorld,
-      camera: camera,
-      saveRepository: saveRepository,
-      now: now ?? DateTime.now,
+      fishWorld,
+      camera,
+      saveRepository,
+      now ?? DateTime.now,
+      feedback,
     );
   }
 
-  FishGame._({
-    required FishWorld world,
-    required CameraComponent camera,
-    required this._saveRepository,
-    required this._now,
-  }) : super(world: world, camera: camera);
+  FishGame._(
+    FishWorld world,
+    CameraComponent camera,
+    this._saveRepository,
+    this._now,
+    this._feedbackService,
+  ) : super(world: world, camera: camera);
 
   static const double logicalWidth = 360;
   static const double logicalHeight = 640;
@@ -52,6 +57,7 @@ class FishGame extends FlameGame<FishWorld> {
 
   final PlayerSaveRepository _saveRepository;
   final DateTime Function() _now;
+  final GameFeedbackService _feedbackService;
   Timer? _saveDebounce;
   Future<void> _pendingSave = Future<void>.value();
   bool _saveReady = false;
@@ -63,6 +69,7 @@ class FishGame extends FlameGame<FishWorld> {
   @override
   Future<void> onLoad() async {
     await super.onLoad();
+    unawaited(_feedbackService.preload());
     final loadResult = await _saveRepository.load();
     final savedData = loadResult.data;
     if (savedData != null) {

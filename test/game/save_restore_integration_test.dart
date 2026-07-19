@@ -2,6 +2,7 @@ import 'package:fish_growth_rpg/app/lifecycle/game_lifecycle_save_observer.dart'
 import 'package:fish_growth_rpg/data/save/player_save_repository.dart';
 import 'package:fish_growth_rpg/domain/models/player_save_data.dart';
 import 'package:fish_growth_rpg/game/fish_game.dart';
+import 'package:fish_growth_rpg/game/services/game_feedback_service.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -28,7 +29,11 @@ void main() {
       ),
     );
     final now = DateTime.utc(2026, 7, 19, 8, 45);
-    final game = FishGame(saveRepository: repository, now: () => now);
+    final game = FishGame(
+      saveRepository: repository,
+      now: () => now,
+      feedbackService: const SilentGameFeedbackService(),
+    );
 
     await tester.pumpWidget(
       MaterialApp(home: GameWidget<FishGame>(game: game)),

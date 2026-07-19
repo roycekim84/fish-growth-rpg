@@ -1,5 +1,6 @@
 import 'package:fish_growth_rpg/game/fish_game.dart';
 import 'package:fish_growth_rpg/game/fish_world.dart';
+import 'package:fish_growth_rpg/game/services/game_feedback_service.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -8,7 +9,7 @@ void main() {
   testWidgets('consumes a smaller fish on contact and respawns it', (
     tester,
   ) async {
-    final game = FishGame();
+    final game = FishGame(feedbackService: const SilentGameFeedbackService());
     await tester.pumpWidget(
       MaterialApp(home: GameWidget<FishGame>(game: game)),
     );

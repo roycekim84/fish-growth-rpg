@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:fish_growth_rpg/domain/models/player_save_data.dart';
 import 'package:fish_growth_rpg/domain/models/player_progress.dart';
 import 'package:fish_growth_rpg/game/components/field_boundary_component.dart';
+import 'package:fish_growth_rpg/game/components/impact_burst_component.dart';
 import 'package:fish_growth_rpg/game/components/ocean_backdrop.dart';
 import 'package:fish_growth_rpg/game/components/npc_fish_component.dart';
 import 'package:fish_growth_rpg/game/components/player_fish_component.dart';
@@ -10,12 +11,13 @@ import 'package:fish_growth_rpg/game/systems/auto_hunt_system.dart';
 import 'package:fish_growth_rpg/game/systems/combat_system.dart';
 import 'package:fish_growth_rpg/game/systems/npc_spawn_system.dart';
 import 'package:fish_growth_rpg/game/systems/recovery_system.dart';
+import 'package:fish_growth_rpg/game/services/game_feedback_service.dart';
 import 'package:fish_growth_rpg/domain/models/fish_species.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/foundation.dart';
 
 class FishWorld extends World with HasCollisionDetection {
-  FishWorld()
+  FishWorld({required this.onFeedback})
     : player = PlayerFishComponent(
         position: Vector2.zero(),
         fieldBounds: fieldBounds,
@@ -30,6 +32,7 @@ class FishWorld extends World with HasCollisionDetection {
       onPlayerDefeated: () => playerDefeatCount.value++,
       onCombatMessage: setCombatMessage,
       onCombatOccurred: recoverySystem.markCombat,
+      onFeedback: onFeedback,
     );
     autoHuntSystem = AutoHuntSystem(
       player: player,
@@ -41,6 +44,7 @@ class FishWorld extends World with HasCollisionDetection {
   static const Rect fieldBounds = Rect.fromLTRB(-640, -850, 640, 850);
 
   final PlayerFishComponent player;
+  final void Function(GameFeedbackEvent event) onFeedback;
   final ValueNotifier<int> npcCount = ValueNotifier<int>(0);
   final ValueNotifier<int> consumedFishCount = ValueNotifier<int>(0);
   final ValueNotifier<int> playerDefeatCount = ValueNotifier<int>(0);
@@ -92,16 +96,25 @@ class FishWorld extends World with HasCollisionDetection {
     consumedFishCount.value++;
     final result = player.consume(fish.species);
     if (result.unlockedSpecies) {
+      _celebrate(ImpactEffect.unlock, GameFeedbackEvent.unlock);
       setCombatMessage('SPECIES UNLOCK!  ${fish.species.displayName}');
       return;
     }
     if (result.leveledUp) {
+      _celebrate(ImpactEffect.levelUp, GameFeedbackEvent.levelUp);
       setCombatMessage('LEVEL UP!  LV.${player.progress.level}');
       return;
     }
     setCombatMessage(
       '+${result.expGained} EXP  +${result.fullnessGained.toInt()} FULL',
     );
+  }
+
+  void _celebrate(ImpactEffect effect, GameFeedbackEvent feedback) {
+    add(
+      ImpactBurstComponent(position: player.position.clone(), effect: effect),
+    );
+    onFeedback(feedback);
   }
 
   Future<void> initializeSpecies(List<FishSpecies> species) async {
