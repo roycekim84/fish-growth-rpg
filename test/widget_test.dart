@@ -13,11 +13,18 @@ void main() {
     expect(find.text('FULL'), findsOneWidget);
     expect(find.text('EXP'), findsOneWidget);
     final button = find.byKey(const ValueKey('boost-button'));
+    final autoButton = find.byKey(const ValueKey('auto-hunt-button'));
     expect(button, findsOneWidget);
+    expect(autoButton, findsOneWidget);
+
+    await tester.tap(autoButton);
+    await tester.pump();
+    expect(find.textContaining('AUTO ON'), findsOneWidget);
 
     final gesture = await tester.startGesture(tester.getCenter(button));
     await tester.pump();
     expect(find.text('BOOST!'), findsOneWidget);
+    expect(find.textContaining('AUTO OFF'), findsOneWidget);
 
     await gesture.up();
     await tester.pump();

@@ -4,6 +4,7 @@ import 'package:fish_growth_rpg/game/components/field_boundary_component.dart';
 import 'package:fish_growth_rpg/game/components/ocean_backdrop.dart';
 import 'package:fish_growth_rpg/game/components/npc_fish_component.dart';
 import 'package:fish_growth_rpg/game/components/player_fish_component.dart';
+import 'package:fish_growth_rpg/game/systems/auto_hunt_system.dart';
 import 'package:fish_growth_rpg/game/systems/combat_system.dart';
 import 'package:fish_growth_rpg/game/systems/npc_spawn_system.dart';
 import 'package:fish_growth_rpg/domain/models/fish_species.dart';
@@ -22,6 +23,11 @@ class FishWorld extends World with HasCollisionDetection {
       onPlayerDefeated: () => playerDefeatCount.value++,
       onCombatMessage: setCombatMessage,
     );
+    autoHuntSystem = AutoHuntSystem(
+      player: player,
+      fishProvider: () => activeNpcFish,
+      onStopped: (reason) => setCombatMessage('AUTO $reason'),
+    );
   }
 
   static const Rect fieldBounds = Rect.fromLTRB(-640, -850, 640, 850);
@@ -32,6 +38,7 @@ class FishWorld extends World with HasCollisionDetection {
   final ValueNotifier<int> playerDefeatCount = ValueNotifier<int>(0);
   final ValueNotifier<String> combatMessage = ValueNotifier<String>('');
   late final CombatSystem combatSystem;
+  late final AutoHuntSystem autoHuntSystem;
 
   NpcSpawnSystem? _spawnSystem;
   double _combatMessageRemaining = 0;
@@ -46,6 +53,7 @@ class FishWorld extends World with HasCollisionDetection {
       OceanBackdrop(),
       FieldBoundaryComponent(bounds: fieldBounds),
       combatSystem,
+      autoHuntSystem,
       player,
     ]);
   }

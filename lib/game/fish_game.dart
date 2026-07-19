@@ -44,6 +44,7 @@ class FishGame extends FlameGame<FishWorld> {
       UnderwaterLightOverlay(logicalSize: Vector2(logicalWidth, logicalHeight)),
       DragInputSurface(
         movement: world.player.movement,
+        onManualInput: stopAutoHuntForManualInput,
         logicalSize: Vector2(logicalWidth, logicalHeight),
       ),
     ]);
@@ -51,6 +52,9 @@ class FishGame extends FlameGame<FishWorld> {
   }
 
   void setBoosting(bool value) {
+    if (value && world.autoHuntSystem.enabled.value) {
+      world.autoHuntSystem.setEnabled(false, stoppedReason: 'MANUAL');
+    }
     if (boostState.value == value) {
       return;
     }
@@ -58,8 +62,24 @@ class FishGame extends FlameGame<FishWorld> {
     boostState.value = value;
   }
 
+  void setAutoHunting(bool value) {
+    if (value) {
+      setBoosting(false);
+    }
+    world.autoHuntSystem.setEnabled(value);
+  }
+
+  void stopAutoHuntForManualInput() {
+    if (!world.autoHuntSystem.enabled.value) {
+      return;
+    }
+    world.autoHuntSystem.setEnabled(false, stoppedReason: 'MANUAL');
+    world.setCombatMessage('AUTO MANUAL');
+  }
+
   void _handlePlayerDefeat() {
     setBoosting(false);
+    world.autoHuntSystem.setEnabled(false, stoppedReason: 'KO');
   }
 
   @override

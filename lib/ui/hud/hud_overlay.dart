@@ -17,10 +17,79 @@ class HudOverlay extends StatelessWidget {
           IgnorePointer(child: _StatusHud(game: game)),
           Align(
             alignment: Alignment.bottomRight,
-            child: _BoostButton(game: game),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _AutoHuntButton(game: game),
+                const SizedBox(height: 10),
+                _BoostButton(game: game),
+              ],
+            ),
           ),
         ],
       ),
+    );
+  }
+}
+
+class _AutoHuntButton extends StatelessWidget {
+  const _AutoHuntButton({required this.game});
+
+  final FishGame game;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListenableBuilder(
+      listenable: Listenable.merge([
+        game.world.autoHuntSystem.enabled,
+        game.world.autoHuntSystem.status,
+      ]),
+      builder: (context, child) {
+        final enabled = game.world.autoHuntSystem.enabled.value;
+        final status = game.world.autoHuntSystem.status.value;
+        return Semantics(
+          button: true,
+          toggled: enabled,
+          label: '반자동 사냥',
+          child: GestureDetector(
+            onTap: () => game.setAutoHunting(!enabled),
+            child: AnimatedContainer(
+              key: const ValueKey('auto-hunt-button'),
+              duration: const Duration(milliseconds: 100),
+              width: 72,
+              height: 50,
+              decoration: BoxDecoration(
+                color: enabled
+                    ? const Color(0xEE3ACB8A)
+                    : const Color(0xDD0A3A5A),
+                border: Border.all(
+                  color: enabled
+                      ? const Color(0xFFFFF0B8)
+                      : const Color(0xFF61AFFF),
+                  width: 3,
+                ),
+                boxShadow: const [
+                  BoxShadow(color: Color(0x99000000), offset: Offset(4, 4)),
+                ],
+              ),
+              child: Center(
+                child: Text(
+                  enabled ? 'AUTO ON\n$status' : 'AUTO OFF\n$status',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: enabled
+                        ? const Color(0xFF052C22)
+                        : const Color(0xFFB8FFF1),
+                    fontSize: 9,
+                    height: 1.2,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }

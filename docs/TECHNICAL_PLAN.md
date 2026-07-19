@@ -181,6 +181,16 @@ M4 전투 기준:
 - 플레이어 사망 시 월드 중앙 완전 회복 및 1.5초 접촉 무적
 - 위험도 링은 초록/노랑/빨강으로 렌더링하고 색 외 HP 바를 함께 제공
 
+M4.5 반자동 사냥 기준:
+
+- `AutoHuntSystem`이 게임 상태와 자동 대상 수명주기를 소유
+- `AutoHuntRules`는 최근접 포식 대상과 위험 반경을 순수 Dart로 판정
+- 대상 재탐색 주기 0.15초, 자동 최대 속도는 기본의 75%
+- 위험 중단 거리 150 logical pixels, 저체력 기준 MaxHP의 35%
+- 위험·저체력 중단은 자동 추진 관성을 제거
+- 수동 드래그, 부스터, KO는 AUTO 상태를 즉시 해제
+- Flutter HUD는 `ValueNotifier`로 ON/OFF와 SEARCH/HUNT/중단 사유를 표시
+
 ## 10. 플랫폼 및 출시 준비
 
 - Android application ID와 iOS bundle ID는 M1에서 확정

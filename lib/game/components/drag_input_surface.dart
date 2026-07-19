@@ -5,10 +5,14 @@ import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 
 class DragInputSurface extends PositionComponent with DragCallbacks {
-  DragInputSurface({required this.movement, required Vector2 logicalSize})
-    : super(size: logicalSize, priority: 1000);
+  DragInputSurface({
+    required this.movement,
+    required this.onManualInput,
+    required Vector2 logicalSize,
+  }) : super(size: logicalSize, priority: 1000);
 
   final PlayerMovementController movement;
+  final void Function() onManualInput;
 
   Vector2? _dragAnchor;
   Vector2? _dragPosition;
@@ -18,6 +22,7 @@ class DragInputSurface extends PositionComponent with DragCallbacks {
     super.onDragStart(event);
     _dragAnchor = event.localPosition.clone();
     _dragPosition = event.localPosition.clone();
+    onManualInput();
     movement.beginDrag(event.localPosition);
   }
 
