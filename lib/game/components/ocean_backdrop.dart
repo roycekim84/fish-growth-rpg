@@ -11,6 +11,13 @@ class OceanBackdrop extends PositionComponent {
       );
 
   static const double _tileSize = 32;
+  double _bubbleOffset = 0;
+
+  @override
+  void update(double dt) {
+    super.update(dt);
+    _bubbleOffset = (_bubbleOffset + dt * 7) % 96;
+  }
 
   @override
   void render(Canvas canvas) {
@@ -31,7 +38,7 @@ class OceanBackdrop extends PositionComponent {
     }
 
     final speckPaint = Paint()..color = const Color(0x5532D6C4);
-    for (var y = 20.0; y < size.y; y += 96) {
+    for (var y = 20.0 - _bubbleOffset; y < size.y; y += 96) {
       final offset = ((y / 96).floor().isEven) ? 12.0 : 52.0;
       for (var x = offset; x < size.x; x += 128) {
         canvas.drawRect(Rect.fromLTWH(x, y, 3, 3), speckPaint);

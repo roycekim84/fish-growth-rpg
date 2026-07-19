@@ -2,6 +2,8 @@ import 'dart:ui';
 
 import 'package:fish_growth_rpg/data/species/species_repository.dart';
 import 'package:fish_growth_rpg/domain/models/fish_species.dart';
+import 'package:fish_growth_rpg/game/components/drag_input_surface.dart';
+import 'package:fish_growth_rpg/game/components/underwater_light_overlay.dart';
 import 'package:fish_growth_rpg/game/fish_world.dart';
 import 'package:flame/camera.dart';
 import 'package:flame/game.dart';
@@ -25,6 +27,7 @@ class FishGame extends FlameGame<FishWorld> {
   static const double logicalHeight = 640;
 
   final ValueNotifier<int> loadedSpeciesCount = ValueNotifier<int>(0);
+  final ValueNotifier<bool> boostState = ValueNotifier<bool>(false);
   List<FishSpecies> species = const [];
 
   @override
@@ -35,12 +38,28 @@ class FishGame extends FlameGame<FishWorld> {
     await super.onLoad();
     species = await SpeciesRepository().loadAll();
     loadedSpeciesCount.value = species.length;
-    camera.follow(world.player, snap: true);
+    await camera.viewport.addAll([
+      UnderwaterLightOverlay(logicalSize: Vector2(logicalWidth, logicalHeight)),
+      DragInputSurface(
+        movement: world.player.movement,
+        logicalSize: Vector2(logicalWidth, logicalHeight),
+      ),
+    ]);
+    camera.follow(world.player, maxSpeed: 420, snap: true);
+  }
+
+  void setBoosting(bool value) {
+    if (boostState.value == value) {
+      return;
+    }
+    world.player.movement.setBoosting(value);
+    boostState.value = value;
   }
 
   @override
   void onRemove() {
     loadedSpeciesCount.dispose();
+    boostState.dispose();
     super.onRemove();
   }
 }

@@ -10,70 +10,131 @@ class HudOverlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return IgnorePointer(
-      child: SafeArea(
-        minimum: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const _PixelPanel(
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      'FISH GROWTH RPG',
-                      style: TextStyle(
-                        color: Color(0xFFB8FFF1),
-                        fontSize: 14,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: 1.4,
-                      ),
-                    ),
+    return SafeArea(
+      minimum: const EdgeInsets.all(12),
+      child: Stack(
+        children: [
+          IgnorePointer(child: _StatusHud(game: game)),
+          Align(
+            alignment: Alignment.bottomRight,
+            child: _BoostButton(game: game),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _StatusHud extends StatelessWidget {
+  const _StatusHud({required this.game});
+
+  final FishGame game;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const _PixelPanel(
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  'FISH GROWTH RPG',
+                  style: TextStyle(
+                    color: Color(0xFFB8FFF1),
+                    fontSize: 14,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 1.4,
                   ),
-                  Text('LV. 1', style: TextStyle(fontWeight: FontWeight.w900)),
+                ),
+              ),
+              Text('LV. 1', style: TextStyle(fontWeight: FontWeight.w900)),
+            ],
+          ),
+        ),
+        const SizedBox(height: 8),
+        const _StatusBar(label: 'HP', value: 0.82, color: Color(0xFFFF5C72)),
+        const SizedBox(height: 5),
+        const _StatusBar(label: 'FULL', value: 0.55, color: Color(0xFFFFC857)),
+        const SizedBox(height: 5),
+        const _StatusBar(label: 'EXP', value: 0.25, color: Color(0xFF61AFFF)),
+        const Spacer(),
+        Align(
+          alignment: Alignment.bottomLeft,
+          child: _PixelPanel(
+            child: ValueListenableBuilder<int>(
+              valueListenable: game.loadedSpeciesCount,
+              builder: (context, count, child) {
+                return Text(
+                  'SPECIES DATA  $count / 3',
+                  style: const TextStyle(
+                    color: Color(0xFFB8FFF1),
+                    fontSize: 11,
+                    fontWeight: FontWeight.w800,
+                  ),
+                );
+              },
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _BoostButton extends StatelessWidget {
+  const _BoostButton({required this.game});
+
+  final FishGame game;
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder<bool>(
+      valueListenable: game.boostState,
+      builder: (context, isBoosting, child) {
+        return Semantics(
+          button: true,
+          label: '부스터',
+          child: Listener(
+            onPointerDown: (_) => game.setBoosting(true),
+            onPointerUp: (_) => game.setBoosting(false),
+            onPointerCancel: (_) => game.setBoosting(false),
+            child: AnimatedContainer(
+              key: const ValueKey('boost-button'),
+              duration: const Duration(milliseconds: 80),
+              width: 72,
+              height: 72,
+              decoration: BoxDecoration(
+                color: isBoosting
+                    ? const Color(0xEEFFB347)
+                    : const Color(0xDD0A3A5A),
+                border: Border.all(
+                  color: isBoosting
+                      ? const Color(0xFFFFF0B8)
+                      : const Color(0xFF32D6C4),
+                  width: 3,
+                ),
+                boxShadow: const [
+                  BoxShadow(color: Color(0x99000000), offset: Offset(4, 4)),
                 ],
               ),
-            ),
-            const SizedBox(height: 8),
-            const _StatusBar(
-              label: 'HP',
-              value: 0.82,
-              color: Color(0xFFFF5C72),
-            ),
-            const SizedBox(height: 5),
-            const _StatusBar(
-              label: 'FULL',
-              value: 0.55,
-              color: Color(0xFFFFC857),
-            ),
-            const SizedBox(height: 5),
-            const _StatusBar(
-              label: 'EXP',
-              value: 0.25,
-              color: Color(0xFF61AFFF),
-            ),
-            const Spacer(),
-            Align(
-              alignment: Alignment.bottomLeft,
-              child: _PixelPanel(
-                child: ValueListenableBuilder<int>(
-                  valueListenable: game.loadedSpeciesCount,
-                  builder: (context, count, child) {
-                    return Text(
-                      'SPECIES DATA  $count / 3',
-                      style: const TextStyle(
-                        color: Color(0xFFB8FFF1),
-                        fontSize: 11,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    );
-                  },
+              child: Center(
+                child: Text(
+                  isBoosting ? 'BOOST!' : 'BOOST',
+                  style: TextStyle(
+                    color: isBoosting
+                        ? const Color(0xFF452A00)
+                        : const Color(0xFFB8FFF1),
+                    fontSize: 11,
+                    fontWeight: FontWeight.w900,
+                  ),
                 ),
               ),
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }
@@ -132,6 +193,7 @@ class _StatusBar extends StatelessWidget {
                 alignment: Alignment.centerLeft,
                 child: FractionallySizedBox(
                   widthFactor: value,
+                  heightFactor: 1,
                   child: ColoredBox(color: color),
                 ),
               ),
