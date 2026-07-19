@@ -36,6 +36,8 @@
 - 이동·경계·부스터 테스트를 포함해 전체 7개 테스트 통과
 - 390×844 웹 렌더링과 마우스 드래그 확인, 런타임 오류 없음
 - M2 Web release 및 Android debug APK 빌드 통과
+- GitHub Pages Web alpha 자동 검증·배포 워크플로 추가
+- Web alpha 배포 및 장애 대응 문서 추가
 
 ## 진행 중
 
