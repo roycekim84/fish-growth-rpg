@@ -1,0 +1,25 @@
+[
+  {
+    "id": "shallow_trail",
+    "title": "빛나는 길의 단서",
+    "giverName": "조개 안내자 누리",
+    "giverGreeting": "얕은 바다에는 네 곳의 오래된 흔적이 있어. 모두 찾아오면, 네게 맞는 새로운 길을 알려 줄게.",
+    "description": "얕은 바다의 랜드마크 4곳을 발견하세요.",
+    "objectiveType": "discoverPoints",
+    "regionId": "ocean_shallows",
+    "targetCount": 4,
+    "rewardSpeciesId": "small_fish",
+    "rewardText": "작은 물고기 종변화 해금"
+  },
+  {
+    "id": "small_school_notes",
+    "title": "작은 무리 관찰 기록",
+    "giverName": "조개 안내자 누리",
+    "giverGreeting": "작은 물고기들은 무리를 이루어 길을 기억하지. 몇 마리를 관찰해 보면 다음 해류의 단서를 읽을 수 있을 거야.",
+    "description": "작은 물고기 5마리를 사냥해 관찰 기록을 채우세요.",
+    "objectiveType": "consumeSpecies",
+    "speciesId": "small_fish",
+    "targetCount": 5,
+    "rewardText": "다음 지역 단서 기록"
+  }
+]

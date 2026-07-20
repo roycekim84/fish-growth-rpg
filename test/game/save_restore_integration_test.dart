@@ -1,6 +1,7 @@
 import 'package:fish_growth_rpg/app/lifecycle/game_lifecycle_save_observer.dart';
 import 'package:fish_growth_rpg/data/save/player_save_repository.dart';
 import 'package:fish_growth_rpg/domain/models/player_save_data.dart';
+import 'package:fish_growth_rpg/domain/models/quest_definition.dart';
 import 'package:fish_growth_rpg/game/fish_game.dart';
 import 'package:fish_growth_rpg/game/services/game_feedback_service.dart';
 import 'package:flame/game.dart';
@@ -27,6 +28,7 @@ void main() {
           discoveredPointIdsByRegionId: {
             'ocean_shallows': {'sunlit_kelp'},
           },
+          questStatusById: {'shallow_trail': QuestStatus.active},
           eatenCountBySpeciesId: {'small_fish': 100, 'puffer_fish': 37},
           lastSaveTimeUtc: savedAt,
         ),
@@ -62,6 +64,10 @@ void main() {
       game.world.player.progress.discoveredPointIdsForRegion('ocean_shallows'),
       {'sunlit_kelp'},
     );
+    expect(
+      game.world.player.progress.questStatus('shallow_trail'),
+      QuestStatus.active,
+    );
 
     await game.saveNow();
 
@@ -75,7 +81,7 @@ void main() {
     final observer = GameLifecycleSaveObserver(game: game);
     await observer.saveForState(AppLifecycleState.paused);
     expect(repository.saved, hasLength(2));
-    expect(repository.saved.last.schemaVersion, 2);
+    expect(repository.saved.last.schemaVersion, 3);
     expect(repository.saved.last.lastSaveTimeUtc.isUtc, isTrue);
 
     await observer.saveForState(AppLifecycleState.resumed);

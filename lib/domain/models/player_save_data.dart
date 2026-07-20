@@ -1,4 +1,5 @@
 import 'package:fish_growth_rpg/domain/models/player_progress.dart';
+import 'package:fish_growth_rpg/domain/models/quest_definition.dart';
 
 class PlayerSaveData {
   PlayerSaveData({
@@ -13,6 +14,7 @@ class PlayerSaveData {
     required this.lastSaveTimeUtc,
     Set<String>? discoveredRegionIds,
     Map<String, Set<String>>? discoveredPointIdsByRegionId,
+    Map<String, QuestStatus>? questStatusById,
     this.schemaVersion = currentSchemaVersion,
   }) : unlockedSpeciesIds = Set.unmodifiable(unlockedSpeciesIds),
        discoveredSpeciesIds = Set.unmodifiable(discoveredSpeciesIds),
@@ -23,9 +25,10 @@ class PlayerSaveData {
              in discoveredPointIdsByRegionId?.entries ??
                  const <MapEntry<String, Set<String>>>[])
            entry.key: Set.unmodifiable(entry.value),
-       });
+       }),
+       questStatusById = Map.unmodifiable(questStatusById ?? const {});
 
-  static const int currentSchemaVersion = 2;
+  static const int currentSchemaVersion = 3;
 
   final int schemaVersion;
   final int level;
@@ -38,6 +41,7 @@ class PlayerSaveData {
   final Map<String, int> eatenCountBySpeciesId;
   final Set<String> discoveredRegionIds;
   final Map<String, Set<String>> discoveredPointIdsByRegionId;
+  final Map<String, QuestStatus> questStatusById;
   final DateTime lastSaveTimeUtc;
 
   factory PlayerSaveData.capture({
@@ -56,6 +60,7 @@ class PlayerSaveData {
       eatenCountBySpeciesId: progress.eatenCountBySpeciesId,
       discoveredRegionIds: progress.discoveredRegionIds,
       discoveredPointIdsByRegionId: progress.discoveredPointIdsByRegionId,
+      questStatusById: progress.questStatusById,
       lastSaveTimeUtc: savedAt.toUtc(),
     );
   }
@@ -79,6 +84,7 @@ class PlayerSaveData {
       json,
       'discoveredPointIdsByRegionId',
     );
+    final questStatuses = _optionalQuestStatusMap(json, 'questStatusById');
     final savedAtText = _requiredString(json, 'lastSaveTimeUtc');
     final savedAt = DateTime.tryParse(savedAtText);
 
@@ -103,6 +109,7 @@ class PlayerSaveData {
       eatenCountBySpeciesId: eatenCounts,
       discoveredRegionIds: discoveredRegions,
       discoveredPointIdsByRegionId: discoveredPoints,
+      questStatusById: questStatuses,
       lastSaveTimeUtc: savedAt.toUtc(),
     );
   }
@@ -121,6 +128,12 @@ class PlayerSaveData {
       'discoveredPointIdsByRegionId': Map.fromEntries(
         discoveredPointIdsByRegionId.entries
             .map((entry) => MapEntry(entry.key, entry.value.toList()..sort()))
+            .toList()
+          ..sort((a, b) => a.key.compareTo(b.key)),
+      ),
+      'questStatusById': Map.fromEntries(
+        questStatusById.entries
+            .map((entry) => MapEntry(entry.key, entry.value.name))
             .toList()
           ..sort((a, b) => a.key.compareTo(b.key)),
       ),
@@ -192,6 +205,31 @@ class PlayerSaveData {
         throw FormatException('Missing or invalid $key.');
       }
       result[entry.key] = points.cast<String>().toSet();
+    }
+    return result;
+  }
+
+  static Map<String, QuestStatus> _optionalQuestStatusMap(
+    Map<String, Object?> json,
+    String key,
+  ) {
+    if (!json.containsKey(key)) {
+      return <String, QuestStatus>{};
+    }
+    final value = json[key];
+    if (value is! Map) {
+      throw FormatException('Missing or invalid $key.');
+    }
+    final result = <String, QuestStatus>{};
+    for (final entry in value.entries) {
+      if (entry.key is! String || entry.key.isEmpty || entry.value is! String) {
+        throw FormatException('Missing or invalid $key.');
+      }
+      try {
+        result[entry.key] = QuestStatus.values.byName(entry.value as String);
+      } on ArgumentError {
+        throw FormatException('Missing or invalid $key.');
+      }
     }
     return result;
   }

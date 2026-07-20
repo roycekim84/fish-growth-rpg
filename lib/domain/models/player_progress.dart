@@ -1,3 +1,5 @@
+import 'package:fish_growth_rpg/domain/models/quest_definition.dart';
+
 class PlayerProgress {
   PlayerProgress({
     this.level = 1,
@@ -9,6 +11,7 @@ class PlayerProgress {
     Set<String>? discoveredSpeciesIds,
     Set<String>? discoveredRegionIds,
     Map<String, Set<String>>? discoveredPointIdsByRegionId,
+    Map<String, QuestStatus>? questStatusById,
   }) : eatenCountBySpeciesId = {...?eatenCountBySpeciesId},
        unlockedSpeciesIds = {starterSpeciesId, ...?unlockedSpeciesIds},
        discoveredSpeciesIds = {...?discoveredSpeciesIds},
@@ -18,7 +21,8 @@ class PlayerProgress {
              in discoveredPointIdsByRegionId?.entries ??
                  const <MapEntry<String, Set<String>>>[])
            entry.key: {...entry.value},
-       };
+       },
+       questStatusById = {...?questStatusById};
 
   static const String starterSpeciesId = 'starter_fish';
   static const double maxFullness = 100;
@@ -36,6 +40,7 @@ class PlayerProgress {
   final Set<String> discoveredSpeciesIds;
   final Set<String> discoveredRegionIds;
   final Map<String, Set<String>> discoveredPointIdsByRegionId;
+  final Map<String, QuestStatus> questStatusById;
 
   int get requiredExp => 20 + level * 10;
   double get maxHp => baseMaxHp + (level - 1) * 5;
@@ -120,6 +125,30 @@ class PlayerProgress {
     return Set.unmodifiable(discoveredPointIdsByRegionId[regionId] ?? const {});
   }
 
+  QuestStatus questStatus(String questId) {
+    return questStatusById[questId] ?? QuestStatus.inactive;
+  }
+
+  bool startQuest(String questId) {
+    if (questStatus(questId) != QuestStatus.inactive) {
+      return false;
+    }
+    questStatusById[questId] = QuestStatus.active;
+    return true;
+  }
+
+  bool completeQuest(String questId) {
+    if (questStatus(questId) != QuestStatus.active) {
+      return false;
+    }
+    questStatusById[questId] = QuestStatus.completed;
+    return true;
+  }
+
+  bool unlockSpeciesFromQuest(String speciesId) {
+    return unlockedSpeciesIds.add(speciesId);
+  }
+
   void restore({
     required int level,
     required int exp,
@@ -130,6 +159,7 @@ class PlayerProgress {
     required Set<String> discoveredSpeciesIds,
     Set<String> discoveredRegionIds = const {},
     Map<String, Set<String>> discoveredPointIdsByRegionId = const {},
+    Map<String, QuestStatus> questStatusById = const {},
   }) {
     this.level = level < 1 ? 1 : level;
     this.exp = exp < 0 ? 0 : exp;
@@ -154,6 +184,9 @@ class PlayerProgress {
         for (final entry in discoveredPointIdsByRegionId.entries)
           entry.key: {...entry.value},
       });
+    this.questStatusById
+      ..clear()
+      ..addAll(questStatusById);
   }
 
   double consumeFullness(double requestedAmount) {

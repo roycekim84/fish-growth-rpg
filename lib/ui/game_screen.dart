@@ -6,6 +6,7 @@ import 'package:fish_growth_rpg/game/fish_game.dart';
 import 'package:fish_growth_rpg/ui/collection/collection_overlay.dart';
 import 'package:fish_growth_rpg/ui/hud/hud_overlay.dart';
 import 'package:fish_growth_rpg/ui/species/species_change_overlay.dart';
+import 'package:fish_growth_rpg/ui/quests/quest_overlay.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 
@@ -61,6 +62,8 @@ class _GameScreenState extends State<GameScreen> {
                       CollectionOverlay(game: game),
                   FishGame.speciesChangeOverlayId: (context, game) =>
                       SpeciesChangeOverlay(game: game),
+                  FishGame.questOverlayId: (context, game) =>
+                      QuestOverlay(game: game),
                 },
                 loadingBuilder: (context) => const _LoadingView(),
                 errorBuilder: (context, error) => _ErrorView(error: error),

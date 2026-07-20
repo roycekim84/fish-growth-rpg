@@ -3,16 +3,19 @@ import 'dart:ui';
 import 'package:fish_growth_rpg/domain/models/player_save_data.dart';
 import 'package:fish_growth_rpg/domain/models/player_progress.dart';
 import 'package:fish_growth_rpg/domain/models/region_definition.dart';
+import 'package:fish_growth_rpg/domain/models/quest_definition.dart';
 import 'package:fish_growth_rpg/game/components/field_boundary_component.dart';
 import 'package:fish_growth_rpg/game/components/impact_burst_component.dart';
 import 'package:fish_growth_rpg/game/components/ocean_backdrop.dart';
 import 'package:fish_growth_rpg/game/components/npc_fish_component.dart';
 import 'package:fish_growth_rpg/game/components/player_fish_component.dart';
+import 'package:fish_growth_rpg/game/components/quest_npc_component.dart';
 import 'package:fish_growth_rpg/game/systems/auto_hunt_system.dart';
 import 'package:fish_growth_rpg/game/systems/combat_system.dart';
 import 'package:fish_growth_rpg/game/systems/npc_spawn_system.dart';
 import 'package:fish_growth_rpg/game/systems/recovery_system.dart';
 import 'package:fish_growth_rpg/game/systems/region_discovery_system.dart';
+import 'package:fish_growth_rpg/game/systems/quest_system.dart';
 import 'package:fish_growth_rpg/game/services/game_feedback_service.dart';
 import 'package:fish_growth_rpg/domain/models/fish_species.dart';
 import 'package:flame/components.dart';
@@ -59,6 +62,7 @@ class FishWorld extends World with HasCollisionDetection {
 
   NpcSpawnSystem? _spawnSystem;
   RegionDiscoverySystem? _regionDiscoverySystem;
+  QuestSystem? questSystem;
   List<FishSpecies> _species = const [];
   double _combatMessageRemaining = 0;
   double? _restoredHp;
@@ -163,6 +167,45 @@ class FishWorld extends World with HasCollisionDetection {
     await add(system);
   }
 
+  Future<void> initializeQuests(List<QuestDefinition> quests) async {
+    if (questSystem != null || currentRegion == null) {
+      return;
+    }
+    final npcPosition = Vector2(-90, -90);
+    final system = QuestSystem(
+      player: player,
+      region: currentRegion!,
+      quests: quests,
+      npcPosition: npcPosition,
+      onQuestCompleted: _handleQuestCompleted,
+    );
+    questSystem = system;
+    await addAll([QuestNpcComponent(position: npcPosition), system]);
+  }
+
+  bool startNextQuest() {
+    final system = questSystem;
+    if (system == null || !system.startNextQuest()) {
+      return false;
+    }
+    final quest = system.quests.firstWhere(
+      (item) => player.progress.questStatus(item.id) == QuestStatus.active,
+    );
+    setCombatMessage('NEW QUEST!  ${quest.title}');
+    return true;
+  }
+
+  void _handleQuestCompleted(QuestDefinition quest, bool unlockedSpecies) {
+    if (unlockedSpecies) {
+      _celebrate(ImpactEffect.unlock, GameFeedbackEvent.unlock);
+    }
+    setCombatMessage(
+      unlockedSpecies
+          ? 'QUEST CLEAR!  ${quest.rewardText}'
+          : 'QUEST CLEAR!  ${quest.title}',
+    );
+  }
+
   void _handleRegionDiscovery(RegionDiscoveryEvent event) {
     regionDiscoveryEvent.value = event;
     setCombatMessage(
@@ -183,6 +226,7 @@ class FishWorld extends World with HasCollisionDetection {
       discoveredSpeciesIds: data.discoveredSpeciesIds,
       discoveredRegionIds: data.discoveredRegionIds,
       discoveredPointIdsByRegionId: data.discoveredPointIdsByRegionId,
+      questStatusById: data.questStatusById,
     );
     _restoredHp = data.hp;
   }

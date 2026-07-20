@@ -289,13 +289,13 @@
 
 목표: 종 해금을 포식 반복이 아닌 quest reward로 전환할 기반을 만든다.
 
-- [ ] Quest 데이터 모델
-- [ ] Quest state machine
-- [ ] 간단한 NPC marker
-- [ ] NPC 대화 오버레이
-- [ ] Exploration quest 1개
-- [ ] Collection quest 1개
-- [ ] quest reward로 species unlock 지원
+- [x] Quest 데이터 모델
+- [x] Quest state machine
+- [x] 간단한 NPC marker
+- [x] NPC 대화 오버레이
+- [x] Exploration quest 1개
+- [x] Collection quest 1개
+- [x] quest reward로 species unlock 지원
 
 완료 조건: 퀘스트 완료로 새 종이 해금된다.
 

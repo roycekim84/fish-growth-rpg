@@ -22,6 +22,8 @@ class HudOverlay extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
+                _TalkButton(game: game),
+                const SizedBox(height: 10),
                 _AutoHuntButton(game: game),
                 const SizedBox(height: 10),
                 _BoostButton(game: game),
@@ -52,6 +54,40 @@ class HudOverlay extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _TalkButton extends StatelessWidget {
+  const _TalkButton({required this.game});
+
+  final FishGame game;
+
+  @override
+  Widget build(BuildContext context) {
+    final questSystem = game.world.questSystem;
+    if (questSystem == null) {
+      return const SizedBox.shrink();
+    }
+    return ValueListenableBuilder<bool>(
+      valueListenable: questSystem.canTalk,
+      builder: (context, canTalk, child) {
+        return AnimatedOpacity(
+          opacity: canTalk ? 1 : 0,
+          duration: const Duration(milliseconds: 120),
+          child: IgnorePointer(
+            ignoring: !canTalk,
+            child: PixelButton(
+              key: const ValueKey('talk-button'),
+              label: 'TALK',
+              width: 72,
+              height: 38,
+              accent: PixelPalette.mint,
+              onPressed: game.openQuestLog,
+            ),
+          ),
+        );
+      },
     );
   }
 }

@@ -1,4 +1,5 @@
 import 'package:fish_growth_rpg/domain/models/player_progress.dart';
+import 'package:fish_growth_rpg/domain/models/quest_definition.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -92,6 +93,18 @@ void main() {
       expect(progress.discoveredPointIdsForRegion('ocean_shallows'), {
         'sunlit_kelp',
       });
+    });
+
+    test('moves quests through inactive, active, and completed states', () {
+      final progress = PlayerProgress();
+
+      expect(progress.questStatus('shallow_trail'), QuestStatus.inactive);
+      expect(progress.startQuest('shallow_trail'), isTrue);
+      expect(progress.startQuest('shallow_trail'), isFalse);
+      expect(progress.completeQuest('shallow_trail'), isTrue);
+      expect(progress.completeQuest('shallow_trail'), isFalse);
+      expect(progress.unlockSpeciesFromQuest('small_fish'), isTrue);
+      expect(progress.isSpeciesUnlocked('small_fish'), isTrue);
     });
   });
 }

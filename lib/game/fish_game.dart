@@ -3,10 +3,12 @@ import 'dart:ui';
 
 import 'package:fish_growth_rpg/data/save/player_save_repository.dart';
 import 'package:fish_growth_rpg/data/regions/region_repository.dart';
+import 'package:fish_growth_rpg/data/quests/quest_repository.dart';
 import 'package:fish_growth_rpg/data/species/species_repository.dart';
 import 'package:fish_growth_rpg/domain/models/fish_species.dart';
 import 'package:fish_growth_rpg/domain/models/player_save_data.dart';
 import 'package:fish_growth_rpg/domain/models/region_definition.dart';
+import 'package:fish_growth_rpg/domain/models/quest_definition.dart';
 import 'package:fish_growth_rpg/game/components/drag_input_surface.dart';
 import 'package:fish_growth_rpg/game/components/underwater_light_overlay.dart';
 import 'package:fish_growth_rpg/game/fish_world.dart';
@@ -49,6 +51,7 @@ class FishGame extends FlameGame<FishWorld> {
   static const double logicalHeight = 640;
   static const String collectionOverlayId = 'collection';
   static const String speciesChangeOverlayId = 'species-change';
+  static const String questOverlayId = 'quests';
 
   final ValueNotifier<int> loadedSpeciesCount = ValueNotifier<int>(0);
   final ValueNotifier<bool> boostState = ValueNotifier<bool>(false);
@@ -57,6 +60,7 @@ class FishGame extends FlameGame<FishWorld> {
   );
   List<FishSpecies> species = const [];
   List<RegionDefinition> regions = const [];
+  List<QuestDefinition> quests = const [];
 
   final PlayerSaveRepository _saveRepository;
   final DateTime Function() _now;
@@ -83,6 +87,8 @@ class FishGame extends FlameGame<FishWorld> {
     await world.initializeSpecies(species);
     regions = await RegionRepository().loadAll();
     await world.initializeRegion(regions.first);
+    quests = await QuestRepository().loadAll();
+    await world.initializeQuests(quests);
     world.playerDefeatCount.addListener(_handlePlayerDefeat);
     await camera.viewport.addAll([
       UnderwaterLightOverlay(logicalSize: Vector2(logicalWidth, logicalHeight)),
@@ -134,6 +140,18 @@ class FishGame extends FlameGame<FishWorld> {
     _openModal(collectionOverlayId);
   }
 
+  bool openQuestLog() {
+    final system = world.questSystem;
+    if (system == null || !system.canTalk.value) {
+      world.setCombatMessage('FIND NURI IN THE SHALLOWS');
+      return false;
+    }
+    _openModal(questOverlayId);
+    return true;
+  }
+
+  bool startNextQuest() => world.startNextQuest();
+
   bool openSpeciesChange() {
     if (world.recoverySystem.isCombatLocked) {
       world.setCombatMessage('CANNOT CHANGE IN COMBAT');
@@ -146,7 +164,8 @@ class FishGame extends FlameGame<FishWorld> {
   void closeModal(String overlayId) {
     overlays.remove(overlayId);
     if (!overlays.isActive(collectionOverlayId) &&
-        !overlays.isActive(speciesChangeOverlayId)) {
+        !overlays.isActive(speciesChangeOverlayId) &&
+        !overlays.isActive(questOverlayId)) {
       resumeEngine();
     }
   }

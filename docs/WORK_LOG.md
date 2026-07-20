@@ -2,8 +2,8 @@
 
 ## 현재 상태
 
-- 현재 마일스톤: M9 — Region and Discovery Foundation
-- 완료 체크포인트: 물고기 애니메이션 + 해저 환경 + 공통 픽셀 UI + 전투 감각 + 성능 감사 + 탐험 중심 기획 전환 + 첫 지역 발견 기반
+- 현재 마일스톤: M10 — Quest Foundation
+- 완료 체크포인트: 물고기 애니메이션 + 해저 환경 + 공통 픽셀 UI + 전투 감각 + 탐험 중심 전환 + 첫 지역 발견 + 퀘스트 기반
 - 마지막 갱신: 2026-07-20
 
 ## 완료
@@ -155,14 +155,19 @@
 - HUD에 현재 지역과 발견 진행도 표시
 - Explorer Book에 Species/Regions 탭 분리 및 발견 지점 기록 표시
 - 지역 및 지점 발견 기록을 save schema v2로 저장하고 기존 v1 저장은 자동 migration
+- 조개 안내자 누리 NPC marker와 근접 TALK 상호작용 추가
+- 탐험 퀘스트 `빛나는 길의 단서`와 수집 퀘스트 `작은 무리 관찰 기록` 추가
+- 퀘스트 상태 inactive/active/completed와 순차 수락 규칙 구현
+- 첫 탐험 퀘스트 보상으로 `small_fish` 종을 해금하는 경로 추가
+- quest progress를 save schema v3에 저장하고 v1/v2 저장은 자동 migration
 
 ## 진행 중
 
-- M9 Region and Discovery Foundation 검증
+- M10 Quest Foundation 검증
 
 ## 다음 작업
 
-- M10 Quest Foundation 설계 및 착수
+- M11 Species Ability Prototype 설계 및 착수
 - Android/iOS 물리 기기 M8 최종 승인은 병행 유지
 
 ## 블로커/미결정
