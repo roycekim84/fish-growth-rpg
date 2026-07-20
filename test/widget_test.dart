@@ -19,7 +19,7 @@ void main() {
     expect(find.text('50 / 100'), findsOneWidget);
     expect(find.text('0 / 30'), findsOneWidget);
     expect(find.text('얕은 바다'), findsOneWidget);
-    expect(find.text('DISCOVER  0 / 4'), findsOneWidget);
+    expect(find.text('DISCOVER  0 / 5'), findsOneWidget);
     expect(find.byKey(const ValueKey('talk-button')), findsOneWidget);
     final button = find.byKey(const ValueKey('boost-button'));
     final autoButton = find.byKey(const ValueKey('auto-hunt-button'));
@@ -47,7 +47,7 @@ void main() {
     expect(find.textContaining('0 / 100'), findsWidgets);
     await tester.tap(find.text('REGIONS'));
     await tester.pumpAndSettle();
-    expect(find.text('DISCOVERY  0 / 4'), findsOneWidget);
+    expect(find.text('DISCOVERY  0 / 5'), findsOneWidget);
 
     await tester.tap(find.byKey(const ValueKey('collection-close-button')));
     await tester.pump();

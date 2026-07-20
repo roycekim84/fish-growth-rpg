@@ -5,6 +5,7 @@ import 'package:fish_growth_rpg/domain/models/player_progress.dart';
 import 'package:fish_growth_rpg/domain/models/region_definition.dart';
 import 'package:fish_growth_rpg/domain/models/quest_definition.dart';
 import 'package:fish_growth_rpg/game/components/field_boundary_component.dart';
+import 'package:fish_growth_rpg/game/components/ability_gate_component.dart';
 import 'package:fish_growth_rpg/game/components/impact_burst_component.dart';
 import 'package:fish_growth_rpg/game/components/ocean_backdrop.dart';
 import 'package:fish_growth_rpg/game/components/npc_fish_component.dart';
@@ -164,7 +165,23 @@ class FishWorld extends World with HasCollisionDetection {
       onDiscovered: _handleRegionDiscovery,
     );
     _regionDiscoverySystem = system;
-    await add(system);
+    await addAll([
+      system,
+      AbilityGateComponent(
+        bounds: const Rect.fromLTRB(-640, -575, 640, -530),
+        player: player,
+        requiredAbilityId: 'narrow_current',
+        label: 'NARROW CURRENT',
+        onBlocked: (label) => setCombatMessage('$label REQUIRES SMALL FISH'),
+      ),
+      AbilityGateComponent(
+        bounds: const Rect.fromLTWH(400, 260, 160, 150),
+        player: player,
+        requiredAbilityId: 'coral_break',
+        label: 'CORAL WALL',
+        onBlocked: (label) => setCombatMessage('$label REQUIRES PUFFER'),
+      ),
+    ]);
   }
 
   Future<void> initializeQuests(List<QuestDefinition> quests) async {

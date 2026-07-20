@@ -36,6 +36,8 @@ class PlayerFishComponent extends PixelFishComponent with CollisionCallbacks {
   FishSpecies? currentSpecies;
 
   String get currentSpeciesName => currentSpecies?.displayName ?? '푸른 치어';
+  String get currentAbilityId => currentSpecies?.playerAbilityId ?? '';
+  String get currentAbilityName => currentSpecies?.playerAbilityName ?? '균형 유영';
   double get gameplaySize =>
       progress.size * (currentSpecies?.playerSizeMultiplier ?? 1);
   double get maxHp =>

@@ -2,8 +2,8 @@
 
 ## 현재 상태
 
-- 현재 마일스톤: M10 — Quest Foundation
-- 완료 체크포인트: 물고기 애니메이션 + 해저 환경 + 공통 픽셀 UI + 전투 감각 + 탐험 중심 전환 + 첫 지역 발견 + 퀘스트 기반
+- 현재 마일스톤: M11 — Species Ability Prototype
+- 완료 체크포인트: 물고기 애니메이션 + 해저 환경 + 공통 픽셀 UI + 전투 감각 + 탐험 중심 전환 + 첫 지역 발견 + 퀘스트 + 종 능력 기반
 - 마지막 갱신: 2026-07-20
 
 ## 완료
@@ -150,7 +150,7 @@
 - 사냥, 레벨, 종변화, 도감, 반자동 사냥의 역할을 탐험 보조 시스템으로 재정의
 - 신규 마일스톤을 Region/Discovery, Quest, Species Ability, Boss Gate, Adventure Alpha 순서로 재배치
 - 사용자 승인 후 M9 착수
-- `ocean_shallows` 지역과 4개 발견 지점을 JSON 데이터로 정의
+- `ocean_shallows` 지역과 5개 발견 지점을 JSON 데이터로 정의
 - 지역 진입, 지점 발견, 지역 완료를 위한 discovery event bus 추가
 - HUD에 현재 지역과 발견 진행도 표시
 - Explorer Book에 Species/Regions 탭 분리 및 발견 지점 기록 표시
@@ -160,14 +160,19 @@
 - 퀘스트 상태 inactive/active/completed와 순차 수락 규칙 구현
 - 첫 탐험 퀘스트 보상으로 `small_fish` 종을 해금하는 경로 추가
 - quest progress를 save schema v3에 저장하고 v1/v2 저장은 자동 migration
+- 종 데이터에 ability id, 이름, 설명을 추가
+- 작은 물고기의 `좁은 해류 통과`, 복어의 `산호 돌파` 능력 구현
+- 능력별 게이트를 실제 플레이어 이동 제한으로 연결
+- 작은 물고기만 접근 가능한 `속삭이는 해류` 발견 지점 추가
+- 종변화 화면에 고유 능력 설명 표시
 
 ## 진행 중
 
-- M10 Quest Foundation 검증
+- M11 Species Ability Prototype 검증
 
 ## 다음 작업
 
-- M11 Species Ability Prototype 설계 및 착수
+- M12 Region Gate and Mini Boss 설계 및 착수
 - Android/iOS 물리 기기 M8 최종 승인은 병행 유지
 
 ## 블로커/미결정

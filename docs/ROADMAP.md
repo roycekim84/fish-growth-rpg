@@ -303,11 +303,11 @@
 
 목표: 종별 고유 능력 하나 이상이 실제 탐험 경로를 바꾼다.
 
-- [ ] Species ability field 추가
-- [ ] ability gate component 추가
-- [ ] 첫 능력 2개 구현
-- [ ] 능력별 이동 감각 차이 적용
-- [ ] 종변화 UI에 ability 설명 표시
+- [x] Species ability field 추가
+- [x] ability gate component 추가
+- [x] 첫 능력 2개 구현
+- [x] 능력별 이동 감각 차이 적용
+- [x] 종변화 UI에 ability 설명 표시
 
 완료 조건: 특정 종으로만 접근 가능한 지역 또는 오브젝트가 생긴다.
 

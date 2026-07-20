@@ -20,7 +20,10 @@
     "playerSpeedMultiplier": 1.2,
     "playerSizeMultiplier": 0.8,
     "playerWeightMultiplier": 0.7,
-    "playerTraitDescription": "작고 약하지만 가장 빠르게 방향을 바꾸며 이동한다."
+    "playerTraitDescription": "작고 약하지만 가장 빠르게 방향을 바꾸며 이동한다.",
+    "playerAbilityId": "narrow_current",
+    "playerAbilityName": "좁은 해류 통과",
+    "playerAbilityDescription": "가느다란 몸으로 강한 좁은 해류 사이를 통과한다."
   },
   {
     "id": "puffer_fish",
@@ -43,7 +46,10 @@
     "playerSpeedMultiplier": 0.78,
     "playerSizeMultiplier": 1.15,
     "playerWeightMultiplier": 1.4,
-    "playerTraitDescription": "느리지만 높은 체력과 무게로 버티는 방어형이다."
+    "playerTraitDescription": "느리지만 높은 체력과 무게로 버티는 방어형이다.",
+    "playerAbilityId": "coral_break",
+    "playerAbilityName": "산호 돌파",
+    "playerAbilityDescription": "단단한 몸으로 막힌 산호 틈을 밀어 열 수 있다."
   },
   {
     "id": "hunter_fish",
@@ -66,6 +72,9 @@
     "playerSpeedMultiplier": 1.1,
     "playerSizeMultiplier": 1.25,
     "playerWeightMultiplier": 1.25,
-    "playerTraitDescription": "높은 공격력과 크기로 적극적인 사냥에 유리하다."
+    "playerTraitDescription": "높은 공격력과 크기로 적극적인 사냥에 유리하다.",
+    "playerAbilityId": "deep_sense",
+    "playerAbilityName": "심해 감각",
+    "playerAbilityDescription": "어두운 심해의 흔적과 위험을 감지한다."
   }
 ]

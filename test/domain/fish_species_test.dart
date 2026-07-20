@@ -25,6 +25,9 @@ void main() {
       'playerSizeMultiplier': 0.85,
       'playerWeightMultiplier': 0.7,
       'playerTraitDescription': '빠른 종',
+      'playerAbilityId': 'narrow_current',
+      'playerAbilityName': '좁은 해류 통과',
+      'playerAbilityDescription': '좁은 길을 통과한다.',
     });
 
     expect(species.id, 'small_fish');
@@ -34,5 +37,7 @@ void main() {
     expect(species.playerMaxHpMultiplier, 0.75);
     expect(species.playerSpeedMultiplier, 1.2);
     expect(species.playerTraitDescription, '빠른 종');
+    expect(species.playerAbilityId, 'narrow_current');
+    expect(species.playerAbilityName, '좁은 해류 통과');
   });
 }

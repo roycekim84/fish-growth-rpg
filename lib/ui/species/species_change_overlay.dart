@@ -228,6 +228,9 @@ class _PreviewPanel extends StatelessWidget {
     final weightMultiplier = species?.playerWeightMultiplier ?? 1;
     final trait =
         species?.playerTraitDescription ?? '균형 잡힌 기본 능력으로 모든 상황에 대응하는 시작 종이다.';
+    final abilityName = species?.playerAbilityName ?? '균형 유영';
+    final abilityDescription =
+        species?.playerAbilityDescription ?? '아직 특정 지형을 통과하는 고유 능력은 없다.';
 
     final speciesId = species?.id ?? PlayerProgress.starterSpeciesId;
     return PixelPanel(
@@ -264,6 +267,24 @@ class _PreviewPanel extends StatelessWidget {
           Text(
             trait,
             style: const TextStyle(color: Color(0xFFB7C8D6), height: 1.5),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            'ABILITY  $abilityName',
+            style: const TextStyle(
+              color: PixelPalette.gold,
+              fontSize: 11,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            abilityDescription,
+            style: const TextStyle(
+              color: PixelPalette.mint,
+              fontSize: 12,
+              height: 1.4,
+            ),
           ),
         ],
       ),

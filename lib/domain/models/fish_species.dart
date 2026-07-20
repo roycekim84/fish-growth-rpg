@@ -21,6 +21,9 @@ class FishSpecies {
     this.playerSizeMultiplier = 1,
     this.playerWeightMultiplier = 1,
     this.playerTraitDescription = '',
+    this.playerAbilityId = '',
+    this.playerAbilityName = '',
+    this.playerAbilityDescription = '',
   });
 
   factory FishSpecies.fromJson(Map<String, dynamic> json) {
@@ -51,6 +54,10 @@ class FishSpecies {
       playerWeightMultiplier:
           (json['playerWeightMultiplier'] as num?)?.toDouble() ?? 1,
       playerTraitDescription: json['playerTraitDescription'] as String? ?? '',
+      playerAbilityId: json['playerAbilityId'] as String? ?? '',
+      playerAbilityName: json['playerAbilityName'] as String? ?? '',
+      playerAbilityDescription:
+          json['playerAbilityDescription'] as String? ?? '',
     );
   }
 
@@ -75,4 +82,7 @@ class FishSpecies {
   final double playerSizeMultiplier;
   final double playerWeightMultiplier;
   final String playerTraitDescription;
+  final String playerAbilityId;
+  final String playerAbilityName;
+  final String playerAbilityDescription;
 }
