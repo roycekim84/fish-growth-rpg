@@ -13,4 +13,23 @@ void main() {
       }
     },
   );
+
+  test('throttles overlapping feedback per sensory channel', () {
+    var elapsed = Duration.zero;
+    final throttle = GameFeedbackThrottle(elapsed: () => elapsed);
+
+    expect(throttle.allow(GameFeedbackEvent.bite), isTrue);
+    expect(throttle.allow(GameFeedbackEvent.playerHit), isFalse);
+    expect(throttle.allow(GameFeedbackEvent.consume), isTrue);
+    expect(throttle.allow(GameFeedbackEvent.levelUp), isTrue);
+    expect(throttle.allow(GameFeedbackEvent.unlock), isFalse);
+
+    elapsed = const Duration(milliseconds: 140);
+    expect(throttle.allow(GameFeedbackEvent.playerHit), isTrue);
+    expect(throttle.allow(GameFeedbackEvent.consume), isTrue);
+    expect(throttle.allow(GameFeedbackEvent.defeat), isFalse);
+
+    elapsed = const Duration(milliseconds: 300);
+    expect(throttle.allow(GameFeedbackEvent.defeat), isTrue);
+  });
 }

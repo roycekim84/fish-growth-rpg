@@ -16,6 +16,8 @@
 5. `/fish-growth-rpg/` base href로 Web release build
 6. GitHub Pages artifact 업로드 및 배포
 
+Pages 단계는 Node 24 기반 공식 액션 `configure-pages@v6`, `upload-pages-artifact@v5`, `deploy-pages@v5`를 사용한다.
+
 분석, 테스트 또는 빌드가 실패하면 기존 공개 버전을 유지하고 새 버전을 배포하지 않는다.
 
 ## 수동 배포
