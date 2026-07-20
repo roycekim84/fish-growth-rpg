@@ -267,7 +267,7 @@
 - [x] 기존 `PROJECT_SPEC.md`를 legacy prototype spec으로 표시
 - [x] README의 프로젝트 설명 갱신
 - [x] 결정 기록에 제품 방향 전환과 종 해금 정책 추가
-- [ ] 다음 구현 마일스톤 착수 전 사용자 승인
+- [x] 다음 구현 마일스톤 착수 전 사용자 승인
 
 완료 조건: 앞으로의 작업 기준이 `Explore -> Discover -> Unlock -> Explore Again`으로 고정된다.
 
@@ -275,13 +275,13 @@
 
 목표: 단일 사각 필드를 첫 탐험 지역으로 재구성한다.
 
-- [ ] Region 데이터 모델
-- [ ] 현재 Ocean shallows region 정의
-- [ ] 카메라/월드에 region id 연결
-- [ ] discovery event bus
-- [ ] 지역 발견률 HUD 최소 표시
-- [ ] 도감에 Region 탭 추가
-- [ ] 저장 schema에 discovered regions 추가
+- [x] Region 데이터 모델
+- [x] 현재 Ocean shallows region 정의
+- [x] 카메라/월드에 region id 연결
+- [x] discovery event bus
+- [x] 지역 발견률 HUD 최소 표시
+- [x] 도감에 Region 탭 추가
+- [x] 저장 schema v2에 discovered regions/landmarks 추가 및 v1 migration
 
 완료 조건: 플레이어가 지역을 발견하고 지역 발견률이 저장/복원된다.
 

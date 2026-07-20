@@ -11,12 +11,21 @@ class PlayerSaveData {
     required Set<String> discoveredSpeciesIds,
     required Map<String, int> eatenCountBySpeciesId,
     required this.lastSaveTimeUtc,
+    Set<String>? discoveredRegionIds,
+    Map<String, Set<String>>? discoveredPointIdsByRegionId,
     this.schemaVersion = currentSchemaVersion,
   }) : unlockedSpeciesIds = Set.unmodifiable(unlockedSpeciesIds),
        discoveredSpeciesIds = Set.unmodifiable(discoveredSpeciesIds),
-       eatenCountBySpeciesId = Map.unmodifiable(eatenCountBySpeciesId);
+       eatenCountBySpeciesId = Map.unmodifiable(eatenCountBySpeciesId),
+       discoveredRegionIds = Set.unmodifiable(discoveredRegionIds ?? const {}),
+       discoveredPointIdsByRegionId = Map.unmodifiable({
+         for (final entry
+             in discoveredPointIdsByRegionId?.entries ??
+                 const <MapEntry<String, Set<String>>>[])
+           entry.key: Set.unmodifiable(entry.value),
+       });
 
-  static const int currentSchemaVersion = 1;
+  static const int currentSchemaVersion = 2;
 
   final int schemaVersion;
   final int level;
@@ -27,6 +36,8 @@ class PlayerSaveData {
   final Set<String> unlockedSpeciesIds;
   final Set<String> discoveredSpeciesIds;
   final Map<String, int> eatenCountBySpeciesId;
+  final Set<String> discoveredRegionIds;
+  final Map<String, Set<String>> discoveredPointIdsByRegionId;
   final DateTime lastSaveTimeUtc;
 
   factory PlayerSaveData.capture({
@@ -43,13 +54,15 @@ class PlayerSaveData {
       unlockedSpeciesIds: progress.unlockedSpeciesIds,
       discoveredSpeciesIds: progress.discoveredSpeciesIds,
       eatenCountBySpeciesId: progress.eatenCountBySpeciesId,
+      discoveredRegionIds: progress.discoveredRegionIds,
+      discoveredPointIdsByRegionId: progress.discoveredPointIdsByRegionId,
       lastSaveTimeUtc: savedAt.toUtc(),
     );
   }
 
   factory PlayerSaveData.fromJson(Map<String, Object?> json) {
     final schemaVersion = _requiredInt(json, 'schemaVersion');
-    if (schemaVersion != currentSchemaVersion) {
+    if (schemaVersion < 1 || schemaVersion > currentSchemaVersion) {
       throw UnsupportedSaveVersion(schemaVersion);
     }
 
@@ -61,6 +74,11 @@ class PlayerSaveData {
     final unlocked = _requiredStringSet(json, 'unlockedSpeciesIds');
     final discovered = _requiredStringSet(json, 'discoveredSpeciesIds');
     final eatenCounts = _requiredCountMap(json, 'eatenCountBySpeciesId');
+    final discoveredRegions = _optionalStringSet(json, 'discoveredRegionIds');
+    final discoveredPoints = _optionalPointMap(
+      json,
+      'discoveredPointIdsByRegionId',
+    );
     final savedAtText = _requiredString(json, 'lastSaveTimeUtc');
     final savedAt = DateTime.tryParse(savedAtText);
 
@@ -74,7 +92,7 @@ class PlayerSaveData {
     }
 
     return PlayerSaveData(
-      schemaVersion: schemaVersion,
+      schemaVersion: currentSchemaVersion,
       level: level,
       exp: exp,
       fullness: fullness.clamp(0, PlayerProgress.maxFullness),
@@ -83,6 +101,8 @@ class PlayerSaveData {
       unlockedSpeciesIds: unlocked,
       discoveredSpeciesIds: discovered,
       eatenCountBySpeciesId: eatenCounts,
+      discoveredRegionIds: discoveredRegions,
+      discoveredPointIdsByRegionId: discoveredPoints,
       lastSaveTimeUtc: savedAt.toUtc(),
     );
   }
@@ -97,6 +117,13 @@ class PlayerSaveData {
       'currentSpeciesId': currentSpeciesId,
       'unlockedSpeciesIds': unlockedSpeciesIds.toList()..sort(),
       'discoveredSpeciesIds': discoveredSpeciesIds.toList()..sort(),
+      'discoveredRegionIds': discoveredRegionIds.toList()..sort(),
+      'discoveredPointIdsByRegionId': Map.fromEntries(
+        discoveredPointIdsByRegionId.entries
+            .map((entry) => MapEntry(entry.key, entry.value.toList()..sort()))
+            .toList()
+          ..sort((a, b) => a.key.compareTo(b.key)),
+      ),
       'eatenCountBySpeciesId': Map.fromEntries(
         eatenCountBySpeciesId.entries.toList()
           ..sort((a, b) => a.key.compareTo(b.key)),
@@ -135,6 +162,38 @@ class PlayerSaveData {
       throw FormatException('Missing or invalid $key.');
     }
     return value.cast<String>().where((item) => item.isNotEmpty).toSet();
+  }
+
+  static Set<String> _optionalStringSet(Map<String, Object?> json, String key) {
+    if (!json.containsKey(key)) {
+      return <String>{};
+    }
+    return _requiredStringSet(json, key);
+  }
+
+  static Map<String, Set<String>> _optionalPointMap(
+    Map<String, Object?> json,
+    String key,
+  ) {
+    if (!json.containsKey(key)) {
+      return <String, Set<String>>{};
+    }
+    final value = json[key];
+    if (value is! Map) {
+      throw FormatException('Missing or invalid $key.');
+    }
+    final result = <String, Set<String>>{};
+    for (final entry in value.entries) {
+      if (entry.key is! String || entry.key.isEmpty || entry.value is! List) {
+        throw FormatException('Missing or invalid $key.');
+      }
+      final points = entry.value;
+      if (points.any((item) => item is! String || item.isEmpty)) {
+        throw FormatException('Missing or invalid $key.');
+      }
+      result[entry.key] = points.cast<String>().toSet();
+    }
+    return result;
   }
 
   static Map<String, int> _requiredCountMap(

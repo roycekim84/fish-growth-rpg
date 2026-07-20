@@ -7,7 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('JsonPlayerSaveRepository', () {
-    test('round-trips schema v1 progress and UTC save time', () async {
+    test('round-trips schema v2 progress and UTC save time', () async {
       final store = MemoryStringPreferencesStore();
       final repository = JsonPlayerSaveRepository(store);
       final progress = PlayerProgress(
@@ -18,6 +18,10 @@ void main() {
         eatenCountBySpeciesId: {'small_fish': 100, 'puffer_fish': 41},
         unlockedSpeciesIds: {'small_fish', 'puffer_fish'},
         discoveredSpeciesIds: {'small_fish', 'puffer_fish'},
+        discoveredRegionIds: {'ocean_shallows'},
+        discoveredPointIdsByRegionId: {
+          'ocean_shallows': {'sunlit_kelp', 'blue_current'},
+        },
       );
       final savedAt = DateTime.parse('2026-07-19T17:30:00+09:00');
 
@@ -27,14 +31,38 @@ void main() {
       final result = await repository.load();
 
       expect(result.state, SaveLoadState.loaded);
-      expect(result.data!.schemaVersion, 1);
+      expect(result.data!.schemaVersion, 2);
       expect(result.data!.level, 4);
       expect(result.data!.exp, 17);
       expect(result.data!.hp, 31.5);
       expect(result.data!.currentSpeciesId, 'puffer_fish');
       expect(result.data!.eatenCountBySpeciesId['small_fish'], 100);
+      expect(result.data!.discoveredRegionIds, {'ocean_shallows'});
+      expect(result.data!.discoveredPointIdsByRegionId['ocean_shallows'], {
+        'sunlit_kelp',
+        'blue_current',
+      });
       expect(result.data!.lastSaveTimeUtc.isUtc, isTrue);
       expect(result.data!.lastSaveTimeUtc, DateTime.utc(2026, 7, 19, 8, 30));
+    });
+
+    test('migrates schema v1 saves without region progress', () {
+      final data = PlayerSaveData.fromJson({
+        'schemaVersion': 1,
+        'level': 1,
+        'exp': 0,
+        'fullness': 50,
+        'hp': 40,
+        'currentSpeciesId': PlayerProgress.starterSpeciesId,
+        'unlockedSpeciesIds': [PlayerProgress.starterSpeciesId],
+        'discoveredSpeciesIds': <String>[],
+        'eatenCountBySpeciesId': <String, int>{},
+        'lastSaveTimeUtc': '2026-07-19T00:00:00Z',
+      });
+
+      expect(data.schemaVersion, 2);
+      expect(data.discoveredRegionIds, isEmpty);
+      expect(data.discoveredPointIdsByRegionId, isEmpty);
     });
 
     test('removes corrupt data and starts from a safe empty state', () async {

@@ -2,8 +2,8 @@
 
 ## 현재 상태
 
-- 현재 마일스톤: M8.5 — Master Spec 전환
-- 완료 체크포인트: 물고기 애니메이션 + 해저 환경 + 공통 픽셀 UI + 전투 감각 + 성능 감사 + 탐험 중심 기획 전환 문서화
+- 현재 마일스톤: M9 — Region and Discovery Foundation
+- 완료 체크포인트: 물고기 애니메이션 + 해저 환경 + 공통 픽셀 UI + 전투 감각 + 성능 감사 + 탐험 중심 기획 전환 + 첫 지역 발견 기반
 - 마지막 갱신: 2026-07-20
 
 ## 완료
@@ -149,14 +149,20 @@
 - 기존 성장/사냥 명세를 legacy prototype spec으로 표시
 - 사냥, 레벨, 종변화, 도감, 반자동 사냥의 역할을 탐험 보조 시스템으로 재정의
 - 신규 마일스톤을 Region/Discovery, Quest, Species Ability, Boss Gate, Adventure Alpha 순서로 재배치
+- 사용자 승인 후 M9 착수
+- `ocean_shallows` 지역과 4개 발견 지점을 JSON 데이터로 정의
+- 지역 진입, 지점 발견, 지역 완료를 위한 discovery event bus 추가
+- HUD에 현재 지역과 발견 진행도 표시
+- Explorer Book에 Species/Regions 탭 분리 및 발견 지점 기록 표시
+- 지역 및 지점 발견 기록을 save schema v2로 저장하고 기존 v1 저장은 자동 migration
 
 ## 진행 중
 
-- M8.5 Master Spec 전환 사용자 승인
+- M9 Region and Discovery Foundation 검증
 
 ## 다음 작업
 
-- M9 Region and Discovery Foundation 착수
+- M10 Quest Foundation 설계 및 착수
 - Android/iOS 물리 기기 M8 최종 승인은 병행 유지
 
 ## 블로커/미결정

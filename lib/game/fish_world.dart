@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:fish_growth_rpg/domain/models/player_save_data.dart';
 import 'package:fish_growth_rpg/domain/models/player_progress.dart';
+import 'package:fish_growth_rpg/domain/models/region_definition.dart';
 import 'package:fish_growth_rpg/game/components/field_boundary_component.dart';
 import 'package:fish_growth_rpg/game/components/impact_burst_component.dart';
 import 'package:fish_growth_rpg/game/components/ocean_backdrop.dart';
@@ -11,6 +12,7 @@ import 'package:fish_growth_rpg/game/systems/auto_hunt_system.dart';
 import 'package:fish_growth_rpg/game/systems/combat_system.dart';
 import 'package:fish_growth_rpg/game/systems/npc_spawn_system.dart';
 import 'package:fish_growth_rpg/game/systems/recovery_system.dart';
+import 'package:fish_growth_rpg/game/systems/region_discovery_system.dart';
 import 'package:fish_growth_rpg/game/services/game_feedback_service.dart';
 import 'package:fish_growth_rpg/domain/models/fish_species.dart';
 import 'package:flame/components.dart';
@@ -49,11 +51,14 @@ class FishWorld extends World with HasCollisionDetection {
   final ValueNotifier<int> consumedFishCount = ValueNotifier<int>(0);
   final ValueNotifier<int> playerDefeatCount = ValueNotifier<int>(0);
   final ValueNotifier<String> combatMessage = ValueNotifier<String>('');
+  final ValueNotifier<RegionDiscoveryEvent?> regionDiscoveryEvent =
+      ValueNotifier<RegionDiscoveryEvent?>(null);
   late final CombatSystem combatSystem;
   late final AutoHuntSystem autoHuntSystem;
   late final RecoverySystem recoverySystem;
 
   NpcSpawnSystem? _spawnSystem;
+  RegionDiscoverySystem? _regionDiscoverySystem;
   List<FishSpecies> _species = const [];
   double _combatMessageRemaining = 0;
   double? _restoredHp;
@@ -61,6 +66,7 @@ class FishWorld extends World with HasCollisionDetection {
   List<NpcFishComponent> get activeNpcFish =>
       _spawnSystem?.activeFish ?? const [];
   List<FishSpecies> get species => _species;
+  RegionDefinition? currentRegion;
 
   @override
   Future<void> onLoad() async {
@@ -140,6 +146,32 @@ class FishWorld extends World with HasCollisionDetection {
     await add(system);
   }
 
+  Future<void> initializeRegion(RegionDefinition region) async {
+    if (_regionDiscoverySystem != null) {
+      return;
+    }
+    currentRegion = region;
+    if (player.progress.discoverRegion(region.id)) {
+      player.progressChanges.value++;
+    }
+    final system = RegionDiscoverySystem(
+      region: region,
+      player: player,
+      onDiscovered: _handleRegionDiscovery,
+    );
+    _regionDiscoverySystem = system;
+    await add(system);
+  }
+
+  void _handleRegionDiscovery(RegionDiscoveryEvent event) {
+    regionDiscoveryEvent.value = event;
+    setCombatMessage(
+      event.completedRegion
+          ? 'REGION COMPLETE!  ${event.pointName}'
+          : 'DISCOVERED!  ${event.pointName}',
+    );
+  }
+
   void restoreSave(PlayerSaveData data) {
     player.progress.restore(
       level: data.level,
@@ -149,6 +181,8 @@ class FishWorld extends World with HasCollisionDetection {
       eatenCountBySpeciesId: data.eatenCountBySpeciesId,
       unlockedSpeciesIds: data.unlockedSpeciesIds,
       discoveredSpeciesIds: data.discoveredSpeciesIds,
+      discoveredRegionIds: data.discoveredRegionIds,
+      discoveredPointIdsByRegionId: data.discoveredPointIdsByRegionId,
     );
     _restoredHp = data.hp;
   }
@@ -178,6 +212,7 @@ class FishWorld extends World with HasCollisionDetection {
     consumedFishCount.dispose();
     playerDefeatCount.dispose();
     combatMessage.dispose();
+    regionDiscoveryEvent.dispose();
     super.onRemove();
   }
 }

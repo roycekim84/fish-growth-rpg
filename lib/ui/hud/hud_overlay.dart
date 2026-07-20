@@ -153,7 +153,7 @@ class _StatusHud extends StatelessWidget {
               children: [
                 const Expanded(
                   child: Text(
-                    'FISH GROWTH RPG',
+                    'FISH ADVENTURE RPG',
                     style: TextStyle(
                       color: Color(0xFFB8FFF1),
                       fontSize: 14,
@@ -176,6 +176,53 @@ class _StatusHud extends StatelessWidget {
               ],
             ),
           ),
+        ),
+        const SizedBox(height: 8),
+        ValueListenableBuilder<int>(
+          valueListenable: game.world.player.progressChanges,
+          builder: (context, revision, child) {
+            final region = game.world.currentRegion;
+            if (region == null) {
+              return const SizedBox.shrink();
+            }
+            final discovered = game.world.player.progress
+                .discoveredPointIdsForRegion(region.id)
+                .length;
+            return PixelPanel(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              child: Row(
+                children: [
+                  const Text(
+                    'AREA',
+                    style: TextStyle(
+                      color: PixelPalette.blue,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      region.displayName,
+                      style: const TextStyle(
+                        color: PixelPalette.cream,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                  ),
+                  Text(
+                    'DISCOVER  $discovered / ${region.discoveryPoints.length}',
+                    style: const TextStyle(
+                      color: PixelPalette.mint,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
         ),
         const SizedBox(height: 8),
         ListenableBuilder(

@@ -162,3 +162,10 @@
 - 결정: 100마리 포식 해금은 초기 프로토타입 mechanic과 일부 collection quest로 유지하되, 장기 기준의 종 해금은 Quest, Region discovery, Boss gate, Special encounter를 우선한다.
 - 이유: Species는 상위 스탯이 아니라 새 이동과 새 지역 접근을 제공해야 하므로 반복 사냥만으로 해금되면 탐험 중심 목표와 충돌한다.
 - 영향: `eatenCountBySpeciesId`는 저장과 도감에 유지한다. 이후 `questUnlockId`, `abilityId`, `regionAccessTags`를 species 데이터에 추가할 수 있도록 확장한다.
+
+## D-024 — 지역 발견은 진입과 랜드마크 기록을 분리
+
+- 상태: 확정
+- 결정: 지역 진입은 `discoveredRegionIds`, 실제 탐험은 지역별 `discoveredPointIds`로 별도 저장한다. 첫 지역 `ocean_shallows`는 네 개의 랜드마크를 모두 찾으면 발견 완료다.
+- 이유: 이후 지역 이동, 퀘스트 조건, 도감 완성도, 보스 해금 조건이 하나의 단순한 포식 카운트에 묶이지 않도록 한다.
+- 영향: M9에서는 진입과 근접 발견만 구현한다. 지점의 시각 마커, 지역 경계 이동, 퀘스트 보상은 후속 마일스톤에서 이 데이터를 소비한다.

@@ -10,7 +10,7 @@ class FishGrowthApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Fish Growth RPG',
+      title: 'Fish Adventure RPG',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         brightness: Brightness.dark,

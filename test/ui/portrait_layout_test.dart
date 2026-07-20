@@ -17,7 +17,7 @@ void main() {
     );
     for (
       var i = 0;
-      i < 180 && find.text('FISH GROWTH RPG').evaluate().isEmpty;
+      i < 180 && find.text('FISH ADVENTURE RPG').evaluate().isEmpty;
       i++
     ) {
       await tester.pump(const Duration(milliseconds: 16));
@@ -33,7 +33,7 @@ void main() {
 }
 
 void _expectHudVisible(WidgetTester tester) {
-  expect(find.text('FISH GROWTH RPG'), findsOneWidget);
+  expect(find.text('FISH ADVENTURE RPG'), findsOneWidget);
   expect(find.byKey(const ValueKey('auto-hunt-button')), findsOneWidget);
   expect(find.byKey(const ValueKey('boost-button')), findsOneWidget);
   expect(find.byKey(const ValueKey('collection-button')), findsOneWidget);

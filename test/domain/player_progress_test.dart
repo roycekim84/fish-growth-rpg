@@ -81,5 +81,17 @@ void main() {
       expect(progress.changeSpecies('hunter_fish'), isFalse);
       expect(progress.currentSpeciesId, PlayerProgress.starterSpeciesId);
     });
+
+    test('records a region and each discovered landmark once', () {
+      final progress = PlayerProgress();
+
+      expect(progress.discoverRegion('ocean_shallows'), isTrue);
+      expect(progress.discoverRegion('ocean_shallows'), isFalse);
+      expect(progress.discoverPoint('ocean_shallows', 'sunlit_kelp'), isTrue);
+      expect(progress.discoverPoint('ocean_shallows', 'sunlit_kelp'), isFalse);
+      expect(progress.discoveredPointIdsForRegion('ocean_shallows'), {
+        'sunlit_kelp',
+      });
+    });
   });
 }

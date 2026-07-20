@@ -10,7 +10,7 @@ void main() {
     );
     await tester.pump();
 
-    expect(find.text('FISH GROWTH RPG'), findsOneWidget);
+    expect(find.text('FISH ADVENTURE RPG'), findsOneWidget);
     expect(find.text('LV. 1'), findsOneWidget);
     expect(find.text('HP'), findsOneWidget);
     expect(find.text('FULL'), findsOneWidget);
@@ -18,6 +18,8 @@ void main() {
     expect(find.text('40 / 40'), findsOneWidget);
     expect(find.text('50 / 100'), findsOneWidget);
     expect(find.text('0 / 30'), findsOneWidget);
+    expect(find.text('얕은 바다'), findsOneWidget);
+    expect(find.text('DISCOVER  0 / 4'), findsOneWidget);
     final button = find.byKey(const ValueKey('boost-button'));
     final autoButton = find.byKey(const ValueKey('auto-hunt-button'));
     expect(button, findsOneWidget);
@@ -40,8 +42,11 @@ void main() {
     expect(collectionButton, findsOneWidget);
     await tester.tap(collectionButton);
     await tester.pump();
-    expect(find.text('FISH COLLECTION'), findsOneWidget);
+    expect(find.text('EXPLORER BOOK'), findsOneWidget);
     expect(find.textContaining('0 / 100'), findsWidgets);
+    await tester.tap(find.text('REGIONS'));
+    await tester.pumpAndSettle();
+    expect(find.text('DISCOVERY  0 / 4'), findsOneWidget);
 
     await tester.tap(find.byKey(const ValueKey('collection-close-button')));
     await tester.pump();

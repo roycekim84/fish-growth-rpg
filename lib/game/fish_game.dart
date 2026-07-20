@@ -2,9 +2,11 @@ import 'dart:async';
 import 'dart:ui';
 
 import 'package:fish_growth_rpg/data/save/player_save_repository.dart';
+import 'package:fish_growth_rpg/data/regions/region_repository.dart';
 import 'package:fish_growth_rpg/data/species/species_repository.dart';
 import 'package:fish_growth_rpg/domain/models/fish_species.dart';
 import 'package:fish_growth_rpg/domain/models/player_save_data.dart';
+import 'package:fish_growth_rpg/domain/models/region_definition.dart';
 import 'package:fish_growth_rpg/game/components/drag_input_surface.dart';
 import 'package:fish_growth_rpg/game/components/underwater_light_overlay.dart';
 import 'package:fish_growth_rpg/game/fish_world.dart';
@@ -54,6 +56,7 @@ class FishGame extends FlameGame<FishWorld> {
     SaveStatus.loading,
   );
   List<FishSpecies> species = const [];
+  List<RegionDefinition> regions = const [];
 
   final PlayerSaveRepository _saveRepository;
   final DateTime Function() _now;
@@ -78,6 +81,8 @@ class FishGame extends FlameGame<FishWorld> {
     species = await SpeciesRepository().loadAll();
     loadedSpeciesCount.value = species.length;
     await world.initializeSpecies(species);
+    regions = await RegionRepository().loadAll();
+    await world.initializeRegion(regions.first);
     world.playerDefeatCount.addListener(_handlePlayerDefeat);
     await camera.viewport.addAll([
       UnderwaterLightOverlay(logicalSize: Vector2(logicalWidth, logicalHeight)),

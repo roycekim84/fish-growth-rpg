@@ -23,6 +23,10 @@ void main() {
           currentSpeciesId: 'puffer_fish',
           unlockedSpeciesIds: {'starter_fish', 'puffer_fish'},
           discoveredSpeciesIds: {'small_fish', 'puffer_fish'},
+          discoveredRegionIds: {'ocean_shallows'},
+          discoveredPointIdsByRegionId: {
+            'ocean_shallows': {'sunlit_kelp'},
+          },
           eatenCountBySpeciesId: {'small_fish': 100, 'puffer_fish': 37},
           lastSaveTimeUtc: savedAt,
         ),
@@ -53,6 +57,11 @@ void main() {
     expect(game.world.player.currentSpeciesName, '복어');
     expect(game.world.player.maxHp, closeTo(67.5, 0.0001));
     expect(game.world.player.hp.value, 20);
+    expect(game.world.currentRegion!.id, 'ocean_shallows');
+    expect(
+      game.world.player.progress.discoveredPointIdsForRegion('ocean_shallows'),
+      {'sunlit_kelp'},
+    );
 
     await game.saveNow();
 
@@ -66,7 +75,7 @@ void main() {
     final observer = GameLifecycleSaveObserver(game: game);
     await observer.saveForState(AppLifecycleState.paused);
     expect(repository.saved, hasLength(2));
-    expect(repository.saved.last.schemaVersion, 1);
+    expect(repository.saved.last.schemaVersion, 2);
     expect(repository.saved.last.lastSaveTimeUtc.isUtc, isTrue);
 
     await observer.saveForState(AppLifecycleState.resumed);

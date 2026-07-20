@@ -13,51 +13,153 @@ class CollectionOverlay extends StatelessWidget {
       color: const Color(0xF2071A2D),
       child: SafeArea(
         minimum: const EdgeInsets.all(12),
-        child: Column(
-          children: [
-            PixelHeader(
-              title: 'FISH COLLECTION',
-              closeButtonKey: const ValueKey('collection-close-button'),
-              onClose: () => game.closeModal(FishGame.collectionOverlayId),
-            ),
-            const SizedBox(height: 10),
-            Expanded(
-              child: ValueListenableBuilder<int>(
-                valueListenable: game.world.player.progressChanges,
-                builder: (context, revision, child) {
-                  final progress = game.world.player.progress;
-                  return ListView.separated(
-                    itemCount: game.species.length,
-                    separatorBuilder: (context, index) =>
-                        const SizedBox(height: 8),
-                    itemBuilder: (context, index) {
-                      final species = game.species[index];
-                      final count =
-                          progress.eatenCountBySpeciesId[species.id] ?? 0;
-                      final unlocked = progress.isSpeciesUnlocked(species.id);
-                      final discovered = progress.discoveredSpeciesIds.contains(
-                        species.id,
-                      );
-                      return _CollectionCard(
-                        name: species.displayName,
-                        description: species.description,
-                        count: count,
-                        goal: species.unlockEatCount,
-                        unlocked: unlocked,
-                        discovered: discovered,
-                        speciesId: species.id,
-                        stats:
-                            'HP ${species.maxHp.toInt()}  STR ${species.strength.toInt()}  '
-                            'SPD ${species.speed.toStringAsFixed(1)}  SIZE ${species.size.toStringAsFixed(1)}',
-                      );
-                    },
-                  );
-                },
+        child: DefaultTabController(
+          length: 2,
+          child: Column(
+            children: [
+              PixelHeader(
+                title: 'EXPLORER BOOK',
+                closeButtonKey: const ValueKey('collection-close-button'),
+                onClose: () => game.closeModal(FishGame.collectionOverlayId),
               ),
-            ),
-          ],
+              const SizedBox(height: 10),
+              const TabBar(
+                tabs: [
+                  Tab(text: 'SPECIES'),
+                  Tab(text: 'REGIONS'),
+                ],
+                labelColor: PixelPalette.cream,
+                unselectedLabelColor: PixelPalette.muted,
+                indicatorColor: PixelPalette.mint,
+              ),
+              const SizedBox(height: 8),
+              Expanded(
+                child: TabBarView(
+                  children: [
+                    _SpeciesCollectionList(game: game),
+                    _RegionCollectionList(game: game),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
+    );
+  }
+}
+
+class _SpeciesCollectionList extends StatelessWidget {
+  const _SpeciesCollectionList({required this.game});
+
+  final FishGame game;
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder<int>(
+      valueListenable: game.world.player.progressChanges,
+      builder: (context, revision, child) {
+        final progress = game.world.player.progress;
+        return ListView.separated(
+          itemCount: game.species.length,
+          separatorBuilder: (context, index) => const SizedBox(height: 8),
+          itemBuilder: (context, index) {
+            final species = game.species[index];
+            final count = progress.eatenCountBySpeciesId[species.id] ?? 0;
+            final unlocked = progress.isSpeciesUnlocked(species.id);
+            final discovered = progress.discoveredSpeciesIds.contains(
+              species.id,
+            );
+            return _CollectionCard(
+              name: species.displayName,
+              description: species.description,
+              count: count,
+              goal: species.unlockEatCount,
+              unlocked: unlocked,
+              discovered: discovered,
+              speciesId: species.id,
+              stats:
+                  'HP ${species.maxHp.toInt()}  STR ${species.strength.toInt()}  '
+                  'SPD ${species.speed.toStringAsFixed(1)}  SIZE ${species.size.toStringAsFixed(1)}',
+            );
+          },
+        );
+      },
+    );
+  }
+}
+
+class _RegionCollectionList extends StatelessWidget {
+  const _RegionCollectionList({required this.game});
+
+  final FishGame game;
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder<int>(
+      valueListenable: game.world.player.progressChanges,
+      builder: (context, revision, child) {
+        final progress = game.world.player.progress;
+        return ListView.separated(
+          itemCount: game.regions.length,
+          separatorBuilder: (context, index) => const SizedBox(height: 8),
+          itemBuilder: (context, index) {
+            final region = game.regions[index];
+            final discovered = progress.discoveredRegionIds.contains(region.id);
+            final points = progress.discoveredPointIdsForRegion(region.id);
+            return PixelPanel(
+              accent: discovered ? PixelPalette.mint : PixelPalette.muted,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    discovered ? region.displayName : '???',
+                    style: const TextStyle(
+                      color: PixelPalette.cream,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                  const SizedBox(height: 5),
+                  Text(
+                    'DISCOVERY  ${points.length} / ${region.discoveryPoints.length}',
+                    style: const TextStyle(
+                      color: PixelPalette.mint,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    discovered ? region.description : '아직 발견하지 못한 지역입니다.',
+                    style: const TextStyle(
+                      color: Color(0xFFB7C8D6),
+                      fontSize: 11,
+                    ),
+                  ),
+                  if (discovered) ...[
+                    const SizedBox(height: 8),
+                    for (final point in region.discoveryPoints)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 3),
+                        child: Text(
+                          '${points.contains(point.id) ? "✓" : "?"} '
+                          '${points.contains(point.id) ? point.displayName : "미발견 장소"}',
+                          style: TextStyle(
+                            color: points.contains(point.id)
+                                ? PixelPalette.cream
+                                : PixelPalette.muted,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ),
+                  ],
+                ],
+              ),
+            );
+          },
+        );
+      },
     );
   }
 }

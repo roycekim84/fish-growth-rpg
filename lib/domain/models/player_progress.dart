@@ -7,9 +7,18 @@ class PlayerProgress {
     Map<String, int>? eatenCountBySpeciesId,
     Set<String>? unlockedSpeciesIds,
     Set<String>? discoveredSpeciesIds,
+    Set<String>? discoveredRegionIds,
+    Map<String, Set<String>>? discoveredPointIdsByRegionId,
   }) : eatenCountBySpeciesId = {...?eatenCountBySpeciesId},
        unlockedSpeciesIds = {starterSpeciesId, ...?unlockedSpeciesIds},
-       discoveredSpeciesIds = {...?discoveredSpeciesIds};
+       discoveredSpeciesIds = {...?discoveredSpeciesIds},
+       discoveredRegionIds = {...?discoveredRegionIds},
+       discoveredPointIdsByRegionId = {
+         for (final entry
+             in discoveredPointIdsByRegionId?.entries ??
+                 const <MapEntry<String, Set<String>>>[])
+           entry.key: {...entry.value},
+       };
 
   static const String starterSpeciesId = 'starter_fish';
   static const double maxFullness = 100;
@@ -25,6 +34,8 @@ class PlayerProgress {
   final Map<String, int> eatenCountBySpeciesId;
   final Set<String> unlockedSpeciesIds;
   final Set<String> discoveredSpeciesIds;
+  final Set<String> discoveredRegionIds;
+  final Map<String, Set<String>> discoveredPointIdsByRegionId;
 
   int get requiredExp => 20 + level * 10;
   double get maxHp => baseMaxHp + (level - 1) * 5;
@@ -84,6 +95,31 @@ class PlayerProgress {
     return true;
   }
 
+  bool discoverRegion(String regionId) {
+    if (regionId.isEmpty) {
+      return false;
+    }
+    return discoveredRegionIds.add(regionId);
+  }
+
+  bool hasDiscoveredPoint(String regionId, String pointId) {
+    return discoveredPointIdsByRegionId[regionId]?.contains(pointId) ?? false;
+  }
+
+  bool discoverPoint(String regionId, String pointId) {
+    if (regionId.isEmpty || pointId.isEmpty) {
+      return false;
+    }
+    discoverRegion(regionId);
+    return discoveredPointIdsByRegionId
+        .putIfAbsent(regionId, () => <String>{})
+        .add(pointId);
+  }
+
+  Set<String> discoveredPointIdsForRegion(String regionId) {
+    return Set.unmodifiable(discoveredPointIdsByRegionId[regionId] ?? const {});
+  }
+
   void restore({
     required int level,
     required int exp,
@@ -92,6 +128,8 @@ class PlayerProgress {
     required Map<String, int> eatenCountBySpeciesId,
     required Set<String> unlockedSpeciesIds,
     required Set<String> discoveredSpeciesIds,
+    Set<String> discoveredRegionIds = const {},
+    Map<String, Set<String>> discoveredPointIdsByRegionId = const {},
   }) {
     this.level = level < 1 ? 1 : level;
     this.exp = exp < 0 ? 0 : exp;
@@ -107,6 +145,15 @@ class PlayerProgress {
     this.discoveredSpeciesIds
       ..clear()
       ..addAll(discoveredSpeciesIds);
+    this.discoveredRegionIds
+      ..clear()
+      ..addAll(discoveredRegionIds);
+    this.discoveredPointIdsByRegionId
+      ..clear()
+      ..addAll({
+        for (final entry in discoveredPointIdsByRegionId.entries)
+          entry.key: {...entry.value},
+      });
   }
 
   double consumeFullness(double requestedAmount) {

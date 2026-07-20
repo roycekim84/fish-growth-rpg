@@ -1,0 +1,13 @@
+[
+  {
+    "id": "ocean_shallows",
+    "displayName": "얕은 바다",
+    "description": "햇빛과 해류가 닿는 첫 번째 바다. 낯선 흔적을 따라 더 먼 곳을 찾아보자.",
+    "discoveryPoints": [
+      {"id": "sunlit_kelp", "displayName": "햇살 수초 군락", "description": "빛을 머금은 수초가 해류에 흔들린다.", "x": -420, "y": -510, "radius": 100},
+      {"id": "driftwood_cove", "displayName": "유목 만", "description": "먼 바다에서 흘러온 유목이 모인 작은 만.", "x": 470, "y": -210, "radius": 100},
+      {"id": "shell_ruins", "displayName": "조개 유적", "description": "커다란 조개와 오래된 돌이 남아 있다.", "x": -380, "y": 510, "radius": 100},
+      {"id": "blue_current", "displayName": "푸른 해류", "description": "심해 쪽에서 불어오는 차가운 흐름.", "x": 410, "y": 560, "radius": 100}
+    ]
+  }
+]
