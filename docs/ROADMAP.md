@@ -236,7 +236,9 @@
 
 구현 감사: runtime 임시 도형·이미지는 남아 있지 않으며 320×568과 430×932 세로 화면 회귀 테스트를 통과했다. 프로젝트 원칙에 따라 M8 최종 완료 표시는 모바일 실기기 승인 후 적용한다.
 
-## M9 — 양대 마켓 출시 준비
+## Post-M13 — 양대 마켓 출시 준비
+
+상태: 보류. Master Spec 전환으로 인해 M13 이후 다시 착수한다.
 
 목표: 비공개/내부 테스트 트랙에 제출 가능한 빌드를 만든다.
 
@@ -252,6 +254,85 @@
 
 ## 현재 다음 작업
 
-1. Android 물리 기기에서 15분 AUTO·수동 혼합 플레이와 햅틱 확인
-2. iOS 빌드 환경 복구 후 동일 회귀 테스트
-3. 실기기 승인 후 M8 완료 처리 및 M9 앱 이름·아이콘·서명 작업 시작
+1. M8.5 Master Spec 전환 문서 기준선 확정
+2. M9 Region and Discovery Foundation 착수
+3. Android/iOS 실기기 검증은 계속 유지하되 마켓 출시 준비는 탐험 수직 절편 이후로 이동
+
+## M8.5 — Master Spec 전환
+
+목표: 기존 성장/사냥 프로토타입을 탐험 어드벤처 RPG 기준으로 재정렬한다.
+
+- [x] `docs/MASTER_SPEC.md` 추가
+- [x] `docs/PIVOT_PLAN.md` 추가
+- [x] 기존 `PROJECT_SPEC.md`를 legacy prototype spec으로 표시
+- [x] README의 프로젝트 설명 갱신
+- [x] 결정 기록에 제품 방향 전환과 종 해금 정책 추가
+- [ ] 다음 구현 마일스톤 착수 전 사용자 승인
+
+완료 조건: 앞으로의 작업 기준이 `Explore -> Discover -> Unlock -> Explore Again`으로 고정된다.
+
+## M9 — Region and Discovery Foundation
+
+목표: 단일 사각 필드를 첫 탐험 지역으로 재구성한다.
+
+- [ ] Region 데이터 모델
+- [ ] 현재 Ocean shallows region 정의
+- [ ] 카메라/월드에 region id 연결
+- [ ] discovery event bus
+- [ ] 지역 발견률 HUD 최소 표시
+- [ ] 도감에 Region 탭 추가
+- [ ] 저장 schema에 discovered regions 추가
+
+완료 조건: 플레이어가 지역을 발견하고 지역 발견률이 저장/복원된다.
+
+## M10 — Quest Foundation
+
+목표: 종 해금을 포식 반복이 아닌 quest reward로 전환할 기반을 만든다.
+
+- [ ] Quest 데이터 모델
+- [ ] Quest state machine
+- [ ] 간단한 NPC marker
+- [ ] NPC 대화 오버레이
+- [ ] Exploration quest 1개
+- [ ] Collection quest 1개
+- [ ] quest reward로 species unlock 지원
+
+완료 조건: 퀘스트 완료로 새 종이 해금된다.
+
+## M11 — Species Ability Prototype
+
+목표: 종별 고유 능력 하나 이상이 실제 탐험 경로를 바꾼다.
+
+- [ ] Species ability field 추가
+- [ ] ability gate component 추가
+- [ ] 첫 능력 2개 구현
+- [ ] 능력별 이동 감각 차이 적용
+- [ ] 종변화 UI에 ability 설명 표시
+
+완료 조건: 특정 종으로만 접근 가능한 지역 또는 오브젝트가 생긴다.
+
+## M12 — Region Gate and Mini Boss
+
+목표: 보스가 다음 지역을 여는 관문 역할을 한다.
+
+- [ ] Boss entity foundation
+- [ ] boss arena boundary
+- [ ] boss defeat event
+- [ ] next region unlock
+- [ ] respawn penalty 최소화
+
+완료 조건: 첫 boss를 통해 새 지역 접근이 열린다.
+
+## M13 — Adventure Alpha Polish
+
+목표: Web alpha에서 탐험 어드벤처로 보이는 첫 수직 절편을 완성한다.
+
+- [ ] 첫 지역 발견률 100%
+- [ ] NPC 1명
+- [ ] Quest 2~3개
+- [ ] Species 2개 이상 고유 능력
+- [ ] 새 지역 1개 잠금/해금
+- [ ] 도감 Region/Species/Quest 통합
+- [ ] 세로 모바일 UI 정리
+
+완료 조건: 10분 플레이에서 `Explore -> Discover -> Unlock -> Explore Again`이 체감된다.

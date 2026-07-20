@@ -148,3 +148,17 @@
 - 결정: bite·playerHit은 충돌 채널 140ms, consume은 보상 채널 80ms, levelUp·unlock·defeat은 주요 채널 300ms 쿨다운을 공유한다. 시각 파티클은 제한하지 않는다.
 - 이유: 여러 NPC와 동시에 접촉해도 전투 정보는 보존하면서 Web·모바일 오디오 플레이어와 햅틱 호출이 순간적으로 늘어나는 것을 막아야 한다.
 - 영향: 같은 채널에서 쿨다운 안에 들어온 후속 소리·진동은 생략한다. 포식과 레벨업처럼 서로 다른 채널의 의도된 조합은 함께 재생할 수 있다.
+
+## D-022 — 제품 방향을 탐험 어드벤처 RPG로 전환
+
+- 상태: 확정
+- 결정: 제품 기준을 `Fish Growth RPG`에서 `Fish Adventure RPG`로 전환한다. 핵심 경험은 `Explore -> Discover -> Unlock -> Explore Again`이며, 성장과 전투는 탐험을 보조하는 시스템으로 둔다.
+- 이유: 기존 사냥·성장 중심 루프는 반복 포식 목표가 강해질수록 플레이 시간이 노가다로 보일 위험이 있다. 새 기준은 지역, 발견, 퀘스트, 종별 능력을 보상으로 삼아 장기 재미를 만든다.
+- 영향: 기존 M0~M8 구현은 폐기하지 않는다. M9 마켓 출시 준비는 보류하고, 먼저 Region, Discovery, Quest, Species Ability 기반의 탐험 수직 절편을 만든다.
+
+## D-023 — 종 해금은 포식 반복보다 탐험 보상 우선
+
+- 상태: 확정
+- 결정: 100마리 포식 해금은 초기 프로토타입 mechanic과 일부 collection quest로 유지하되, 장기 기준의 종 해금은 Quest, Region discovery, Boss gate, Special encounter를 우선한다.
+- 이유: Species는 상위 스탯이 아니라 새 이동과 새 지역 접근을 제공해야 하므로 반복 사냥만으로 해금되면 탐험 중심 목표와 충돌한다.
+- 영향: `eatenCountBySpeciesId`는 저장과 도감에 유지한다. 이후 `questUnlockId`, `abilityId`, `regionAccessTags`를 species 데이터에 추가할 수 있도록 확장한다.

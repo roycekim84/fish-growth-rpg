@@ -2,8 +2,8 @@
 
 ## 현재 상태
 
-- 현재 마일스톤: M8 — 구현 범위 완료, 모바일 실기기 승인 대기
-- 완료 체크포인트: 물고기 애니메이션 + 해저 환경 + 공통 픽셀 UI + 전투 감각 + 성능 감사
+- 현재 마일스톤: M8.5 — Master Spec 전환
+- 완료 체크포인트: 물고기 애니메이션 + 해저 환경 + 공통 픽셀 UI + 전투 감각 + 성능 감사 + 탐험 중심 기획 전환 문서화
 - 마지막 갱신: 2026-07-20
 
 ## 완료
@@ -145,19 +145,26 @@
 - GitHub Pages 액션을 Node 24 기반 `configure-pages@v6`, `upload-pages-artifact@v5`, `deploy-pages@v5`로 갱신
 - 피드백 제한과 세로 화면 회귀를 포함해 전체 48개 테스트 및 `flutter analyze` 통과
 - Web release와 clean 재생성 Android debug APK 빌드 통과
+- Master Spec을 `Fish Adventure RPG` 기준으로 추가
+- 기존 성장/사냥 명세를 legacy prototype spec으로 표시
+- 사냥, 레벨, 종변화, 도감, 반자동 사냥의 역할을 탐험 보조 시스템으로 재정의
+- 신규 마일스톤을 Region/Discovery, Quest, Species Ability, Boss Gate, Adventure Alpha 순서로 재배치
 
 ## 진행 중
 
-- Android/iOS 물리 기기 M8 최종 승인
+- M8.5 Master Spec 전환 사용자 승인
 
 ## 다음 작업
 
-- Android 물리 기기 15분 AUTO·수동 혼합 플레이와 햅틱 확인
-- iOS 로컬 빌드 환경 복구 후 회귀 테스트
+- M9 Region and Discovery Foundation 착수
+- Android/iOS 물리 기기 M8 최종 승인은 병행 유지
 
 ## 블로커/미결정
 
 - 플레이어 시작 종의 최종 이름과 DEX/INT 수치
+- 최종 앱 이름, package/bundle ID 변경 여부
+- Fullness를 Hunger로 저장 schema까지 바꿀지 여부
+- 100마리 포식 해금을 완전히 제거할지, collection quest로 유지할지 여부
 - iOS 빌드 환경: 설치된 CoreSimulator 1051.54.0이 Xcode 요구 버전 1051.55.0보다 낮음
 - iOS simulator 서명 대상 Flutter.framework에 macOS resource fork/metadata 오류 존재
 - Android API 36 에뮬레이터 실행·저장 복원은 확인했으며 실제 물리 기기 터치 검증은 후속 필요
