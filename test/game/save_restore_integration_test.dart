@@ -22,6 +22,7 @@ void main() {
           fullness: 64,
           hp: 20,
           currentSpeciesId: 'puffer_fish',
+          currentRegionId: 'ocean_shallows',
           unlockedSpeciesIds: {'starter_fish', 'puffer_fish'},
           discoveredSpeciesIds: {'small_fish', 'puffer_fish'},
           discoveredRegionIds: {'ocean_shallows'},
@@ -74,19 +75,24 @@ void main() {
     expect(game.world.player.progress.defeatedBossIds, {'current_warden'});
     expect(game.world.boss, isNull);
 
+    await game.world.enterRegion('deep_sea');
+    expect(game.world.currentRegion!.id, 'deep_sea');
+    expect(game.world.player.progress.currentRegionId, 'deep_sea');
+
     await game.saveNow();
 
     expect(repository.saved, hasLength(1));
     expect(repository.saved.single.level, 3);
     expect(repository.saved.single.hp, 20);
     expect(repository.saved.single.currentSpeciesId, 'puffer_fish');
+    expect(repository.saved.single.currentRegionId, 'deep_sea');
     expect(repository.saved.single.lastSaveTimeUtc, now);
     expect(game.saveStatus.value, SaveStatus.saved);
 
     final observer = GameLifecycleSaveObserver(game: game);
     await observer.saveForState(AppLifecycleState.paused);
     expect(repository.saved, hasLength(2));
-    expect(repository.saved.last.schemaVersion, 4);
+    expect(repository.saved.last.schemaVersion, 5);
     expect(repository.saved.last.lastSaveTimeUtc.isUtc, isTrue);
 
     await observer.saveForState(AppLifecycleState.resumed);

@@ -2,8 +2,8 @@
 
 ## 현재 상태
 
-- 현재 마일스톤: M12 — Region Gate and Mini Boss
-- 완료 체크포인트: 물고기 애니메이션 + 해저 환경 + 공통 픽셀 UI + 전투 감각 + 탐험 중심 전환 + 첫 지역 발견 + 퀘스트 + 종 능력 + 보스 관문
+- 현재 마일스톤: M13 — Adventure Alpha Polish
+- 완료 체크포인트: 물고기 애니메이션 + 해저 환경 + 공통 픽셀 UI + 전투 감각 + 탐험 중심 전환 + 첫 지역 발견 + 퀘스트 + 종 능력 + 보스 관문 + 심해 전환
 - 마지막 갱신: 2026-07-20
 
 ## 완료
@@ -169,14 +169,18 @@
 - 보스 처치 시 `deep_sea` 지역 해금 및 관문 개방
 - boss defeat와 unlocked region을 save schema v4에 저장하고 구버전 저장 자동 migration
 - 기존 즉시 부활 구조를 유지해 보스 재도전 패널티를 최소화
+- 보스 관문 진입 시 실제 `deep_sea` 지역으로 전환하고 심해 팔레트 적용
+- 심해 입구 랜드마크 3개와 세 번째 퀘스트 `심해의 메아리` 추가
+- 현재 지역을 save schema v5에 저장해 재시작 후에도 같은 지역에서 이어가기
+- Explorer Book에 Quest 탭을 추가해 Species/Regions/Quests 통합 기록 제공
 
 ## 진행 중
 
-- M12 Region Gate and Mini Boss 검증
+- M13 Adventure Alpha Polish 검증
 
 ## 다음 작업
 
-- M13 Adventure Alpha Polish 설계 및 착수
+- 웹 알파 플레이테스트 및 M14 콘텐츠 확장 설계
 - Android/iOS 물리 기기 M8 최종 승인은 병행 유지
 
 ## 블로커/미결정

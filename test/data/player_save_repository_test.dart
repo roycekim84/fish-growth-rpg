@@ -8,7 +8,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('JsonPlayerSaveRepository', () {
-    test('round-trips schema v4 progress and UTC save time', () async {
+    test('round-trips schema v5 progress and UTC save time', () async {
       final store = MemoryStringPreferencesStore();
       final repository = JsonPlayerSaveRepository(store);
       final progress = PlayerProgress(
@@ -16,6 +16,7 @@ void main() {
         exp: 17,
         fullness: 72,
         currentSpeciesId: 'puffer_fish',
+        currentRegionId: 'deep_sea',
         eatenCountBySpeciesId: {'small_fish': 100, 'puffer_fish': 41},
         unlockedSpeciesIds: {'small_fish', 'puffer_fish'},
         discoveredSpeciesIds: {'small_fish', 'puffer_fish'},
@@ -35,11 +36,12 @@ void main() {
       final result = await repository.load();
 
       expect(result.state, SaveLoadState.loaded);
-      expect(result.data!.schemaVersion, 4);
+      expect(result.data!.schemaVersion, 5);
       expect(result.data!.level, 4);
       expect(result.data!.exp, 17);
       expect(result.data!.hp, 31.5);
       expect(result.data!.currentSpeciesId, 'puffer_fish');
+      expect(result.data!.currentRegionId, 'deep_sea');
       expect(result.data!.eatenCountBySpeciesId['small_fish'], 100);
       expect(result.data!.discoveredRegionIds, {'ocean_shallows'});
       expect(result.data!.discoveredPointIdsByRegionId['ocean_shallows'], {
@@ -67,7 +69,7 @@ void main() {
         'lastSaveTimeUtc': '2026-07-19T00:00:00Z',
       });
 
-      expect(data.schemaVersion, 4);
+      expect(data.schemaVersion, 5);
       expect(data.discoveredRegionIds, isEmpty);
       expect(data.discoveredPointIdsByRegionId, isEmpty);
     });

@@ -8,6 +8,7 @@ class PlayerSaveData {
     required this.fullness,
     required this.hp,
     required this.currentSpeciesId,
+    this.currentRegionId = PlayerProgress.defaultRegionId,
     required Set<String> unlockedSpeciesIds,
     required Set<String> discoveredSpeciesIds,
     required Map<String, int> eatenCountBySpeciesId,
@@ -32,7 +33,7 @@ class PlayerSaveData {
        unlockedRegionIds = Set.unmodifiable(unlockedRegionIds ?? const {}),
        defeatedBossIds = Set.unmodifiable(defeatedBossIds ?? const {});
 
-  static const int currentSchemaVersion = 4;
+  static const int currentSchemaVersion = 5;
 
   final int schemaVersion;
   final int level;
@@ -40,6 +41,7 @@ class PlayerSaveData {
   final double fullness;
   final double hp;
   final String currentSpeciesId;
+  final String currentRegionId;
   final Set<String> unlockedSpeciesIds;
   final Set<String> discoveredSpeciesIds;
   final Map<String, int> eatenCountBySpeciesId;
@@ -61,6 +63,7 @@ class PlayerSaveData {
       fullness: progress.fullness,
       hp: hp,
       currentSpeciesId: progress.currentSpeciesId,
+      currentRegionId: progress.currentRegionId,
       unlockedSpeciesIds: progress.unlockedSpeciesIds,
       discoveredSpeciesIds: progress.discoveredSpeciesIds,
       eatenCountBySpeciesId: progress.eatenCountBySpeciesId,
@@ -84,6 +87,8 @@ class PlayerSaveData {
     final fullness = _requiredDouble(json, 'fullness');
     final hp = _requiredDouble(json, 'hp');
     final currentSpeciesId = _requiredString(json, 'currentSpeciesId');
+    final currentRegionId =
+        json['currentRegionId'] as String? ?? PlayerProgress.defaultRegionId;
     final unlocked = _requiredStringSet(json, 'unlockedSpeciesIds');
     final discovered = _requiredStringSet(json, 'discoveredSpeciesIds');
     final eatenCounts = _requiredCountMap(json, 'eatenCountBySpeciesId');
@@ -114,6 +119,7 @@ class PlayerSaveData {
       fullness: fullness.clamp(0, PlayerProgress.maxFullness),
       hp: hp,
       currentSpeciesId: currentSpeciesId,
+      currentRegionId: currentRegionId,
       unlockedSpeciesIds: unlocked,
       discoveredSpeciesIds: discovered,
       eatenCountBySpeciesId: eatenCounts,
@@ -134,6 +140,7 @@ class PlayerSaveData {
       'fullness': fullness,
       'hp': hp,
       'currentSpeciesId': currentSpeciesId,
+      'currentRegionId': currentRegionId,
       'unlockedSpeciesIds': unlockedSpeciesIds.toList()..sort(),
       'discoveredSpeciesIds': discoveredSpeciesIds.toList()..sort(),
       'discoveredRegionIds': discoveredRegionIds.toList()..sort(),

@@ -6,6 +6,7 @@ class PlayerProgress {
     this.exp = 0,
     this.fullness = 50,
     this.currentSpeciesId = starterSpeciesId,
+    this.currentRegionId = defaultRegionId,
     Map<String, int>? eatenCountBySpeciesId,
     Set<String>? unlockedSpeciesIds,
     Set<String>? discoveredSpeciesIds,
@@ -29,6 +30,7 @@ class PlayerProgress {
        defeatedBossIds = {...?defeatedBossIds};
 
   static const String starterSpeciesId = 'starter_fish';
+  static const String defaultRegionId = 'ocean_shallows';
   static const double maxFullness = 100;
   static const double baseMaxHp = 40;
   static const double baseStrength = 3;
@@ -39,6 +41,7 @@ class PlayerProgress {
   int exp;
   double fullness;
   String currentSpeciesId;
+  String currentRegionId;
   final Map<String, int> eatenCountBySpeciesId;
   final Set<String> unlockedSpeciesIds;
   final Set<String> discoveredSpeciesIds;
@@ -113,6 +116,14 @@ class PlayerProgress {
     return discoveredRegionIds.add(regionId);
   }
 
+  bool setCurrentRegion(String regionId) {
+    if (regionId.isEmpty || currentRegionId == regionId) {
+      return false;
+    }
+    currentRegionId = regionId;
+    return true;
+  }
+
   bool isRegionUnlocked(String regionId) =>
       unlockedRegionIds.contains(regionId);
 
@@ -177,6 +188,7 @@ class PlayerProgress {
     required int exp,
     required double fullness,
     required String currentSpeciesId,
+    String currentRegionId = defaultRegionId,
     required Map<String, int> eatenCountBySpeciesId,
     required Set<String> unlockedSpeciesIds,
     required Set<String> discoveredSpeciesIds,
@@ -190,6 +202,9 @@ class PlayerProgress {
     this.exp = exp < 0 ? 0 : exp;
     this.fullness = fullness.clamp(0, maxFullness);
     this.currentSpeciesId = currentSpeciesId;
+    this.currentRegionId = currentRegionId.isEmpty
+        ? defaultRegionId
+        : currentRegionId;
     this.eatenCountBySpeciesId
       ..clear()
       ..addAll(eatenCountBySpeciesId);

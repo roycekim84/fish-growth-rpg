@@ -116,5 +116,14 @@ void main() {
       expect(progress.unlockRegion('deep_sea'), isTrue);
       expect(progress.isRegionUnlocked('deep_sea'), isTrue);
     });
+
+    test('keeps the current region as part of exploration progress', () {
+      final progress = PlayerProgress();
+
+      expect(progress.currentRegionId, 'ocean_shallows');
+      expect(progress.setCurrentRegion('deep_sea'), isTrue);
+      expect(progress.currentRegionId, 'deep_sea');
+      expect(progress.setCurrentRegion('deep_sea'), isFalse);
+    });
   });
 }

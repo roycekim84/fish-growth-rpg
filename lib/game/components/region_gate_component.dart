@@ -9,6 +9,7 @@ class RegionGateComponent extends PositionComponent {
     required this.player,
     required this.isUnlocked,
     required this.onBlocked,
+    this.onEnter,
   }) : super(
          position: Vector2(bounds.left, bounds.top),
          size: Vector2(bounds.width, bounds.height),
@@ -18,13 +19,21 @@ class RegionGateComponent extends PositionComponent {
   final PlayerFishComponent player;
   final bool Function() isUnlocked;
   final VoidCallback onBlocked;
+  final VoidCallback? onEnter;
   double _messageCooldown = 0;
 
   @override
   void update(double dt) {
     super.update(dt);
     _messageCooldown -= dt;
-    if (isUnlocked() || !containsPoint(player.position)) {
+    if (!containsPoint(player.position)) {
+      return;
+    }
+    if (isUnlocked()) {
+      if (_messageCooldown <= 0) {
+        onEnter?.call();
+        _messageCooldown = 1.2;
+      }
       return;
     }
     player.position.y = position.y + size.y + 3;

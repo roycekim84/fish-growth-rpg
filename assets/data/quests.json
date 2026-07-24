@@ -21,5 +21,16 @@
     "speciesId": "small_fish",
     "targetCount": 5,
     "rewardText": "다음 지역 단서 기록"
+  },
+  {
+    "id": "deep_sea_echo",
+    "title": "심해의 메아리",
+    "giverName": "조개 안내자 누리",
+    "giverGreeting": "수호자를 넘어섰구나. 심해 입구의 세 흔적을 기록하면, 그 너머의 바다도 길을 내줄 거야.",
+    "description": "심해 입구의 랜드마크 3곳을 발견하세요.",
+    "objectiveType": "discoverPoints",
+    "regionId": "deep_sea",
+    "targetCount": 3,
+    "rewardText": "심해 탐험 기록 완성"
   }
 ]

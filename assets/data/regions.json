@@ -15,6 +15,10 @@
     "id": "deep_sea",
     "displayName": "심해 입구",
     "description": "해류의 수호자를 넘어야만 열리는 어두운 바다의 입구.",
-    "discoveryPoints": []
+    "discoveryPoints": [
+      {"id": "abyssal_arch", "displayName": "심연의 아치", "description": "검푸른 물결 아래에 거대한 돌 아치가 잠들어 있다.", "x": -360, "y": -240, "radius": 100},
+      {"id": "glow_moss", "displayName": "발광 이끼 군락", "description": "어둠 속에서 작은 빛들이 길을 만든다.", "x": 320, "y": 80, "radius": 100},
+      {"id": "silent_drop", "displayName": "고요한 낙차", "description": "더 깊은 곳으로 이어지는 차가운 물길.", "x": 40, "y": -480, "radius": 100}
+    ]
   }
 ]

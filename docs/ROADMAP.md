@@ -327,12 +327,12 @@
 
 목표: Web alpha에서 탐험 어드벤처로 보이는 첫 수직 절편을 완성한다.
 
-- [ ] 첫 지역 발견률 100%
-- [ ] NPC 1명
-- [ ] Quest 2~3개
-- [ ] Species 2개 이상 고유 능력
-- [ ] 새 지역 1개 잠금/해금
-- [ ] 도감 Region/Species/Quest 통합
-- [ ] 세로 모바일 UI 정리
+- [x] 첫 지역 발견률 100% 달성 가능 구조
+- [x] NPC 1명
+- [x] Quest 3개
+- [x] Species 2개 이상 고유 능력
+- [x] 새 지역 1개 잠금/해금 및 실제 전환
+- [x] 도감 Region/Species/Quest 통합
+- [x] 세로 모바일 UI에 탐험 상태 정리
 
 완료 조건: 10분 플레이에서 `Explore -> Discover -> Unlock -> Explore Again`이 체감된다.

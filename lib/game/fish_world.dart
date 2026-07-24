@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui';
 
 import 'package:fish_growth_rpg/domain/models/player_save_data.dart';
@@ -65,12 +66,14 @@ class FishWorld extends World with HasCollisionDetection {
   late final RecoverySystem recoverySystem;
 
   NpcSpawnSystem? _spawnSystem;
-  RegionDiscoverySystem? _regionDiscoverySystem;
+  final List<Component> _regionComponents = [];
+  List<RegionDefinition> _regionCatalog = const [];
   QuestSystem? questSystem;
   BossFishComponent? boss;
   List<FishSpecies> _species = const [];
   double _combatMessageRemaining = 0;
   double? _restoredHp;
+  final OceanBackdrop oceanBackdrop = OceanBackdrop();
 
   List<NpcFishComponent> get activeNpcFish =>
       _spawnSystem?.activeFish ?? const [];
@@ -82,7 +85,7 @@ class FishWorld extends World with HasCollisionDetection {
   Future<void> onLoad() async {
     await super.onLoad();
     await addAll([
-      OceanBackdrop(),
+      oceanBackdrop,
       FieldBoundaryComponent(bounds: fieldBounds),
       combatSystem,
       recoverySystem,
@@ -161,62 +164,104 @@ class FishWorld extends World with HasCollisionDetection {
   }
 
   Future<void> initializeRegion(RegionDefinition region) async {
-    if (_regionDiscoverySystem != null) {
+    if (currentRegion != null) {
       return;
     }
+    await _activateRegion(region, spawnPosition: Vector2.zero());
+  }
+
+  void setRegionCatalog(List<RegionDefinition> regions) {
+    _regionCatalog = List.unmodifiable(regions);
+  }
+
+  Future<void> enterRegion(String regionId) async {
+    if (currentRegion?.id == regionId ||
+        !player.progress.isRegionUnlocked(regionId)) {
+      return;
+    }
+    final region = _regionCatalog
+        .where((item) => item.id == regionId)
+        .firstOrNull;
+    if (region == null) {
+      return;
+    }
+    await _activateRegion(region, spawnPosition: Vector2(0, 620));
+    setCombatMessage('ENTERED!  ${region.displayName}');
+  }
+
+  Future<void> _activateRegion(
+    RegionDefinition region, {
+    required Vector2 spawnPosition,
+  }) async {
+    for (final component in _regionComponents) {
+      component.removeFromParent();
+    }
+    _regionComponents.clear();
     currentRegion = region;
+    final changedCurrentRegion = player.progress.setCurrentRegion(region.id);
     final discovered = player.progress.discoverRegion(region.id);
     final unlocked = player.progress.unlockRegion(region.id);
-    if (discovered || unlocked) {
+    if (discovered || unlocked || changedCurrentRegion) {
       player.progressChanges.value++;
     }
-    final system = RegionDiscoverySystem(
+    player.position.setFrom(spawnPosition);
+    player.movement.velocity.setZero();
+    oceanBackdrop.setTheme(
+      region.id == 'deep_sea'
+          ? OceanBackdropTheme.deepSea
+          : OceanBackdropTheme.shallows,
+    );
+    final discoverySystem = RegionDiscoverySystem(
       region: region,
       player: player,
       onDiscovered: _handleRegionDiscovery,
     );
-    _regionDiscoverySystem = system;
-    await addAll([
-      system,
-      AbilityGateComponent(
+    _regionComponents.add(discoverySystem);
+    if (region.id == 'ocean_shallows') {
+      final narrowCurrent = AbilityGateComponent(
         bounds: const Rect.fromLTRB(-640, -575, 640, -530),
         player: player,
         requiredAbilityId: 'narrow_current',
         label: 'NARROW CURRENT',
         onBlocked: (label) => setCombatMessage('$label REQUIRES SMALL FISH'),
-      ),
-      AbilityGateComponent(
+      );
+      final coralWall = AbilityGateComponent(
         bounds: const Rect.fromLTWH(400, 260, 160, 150),
         player: player,
         requiredAbilityId: 'coral_break',
         label: 'CORAL WALL',
         onBlocked: (label) => setCombatMessage('$label REQUIRES PUFFER'),
-      ),
-    ]);
+      );
+      _regionComponents.addAll([narrowCurrent, coralWall]);
+    }
+    await addAll(_regionComponents);
   }
 
   Future<void> initializeBoss() async {
-    if (boss != null ||
-        player.progress.defeatedBossIds.contains(BossFishComponent.bossId)) {
+    if (currentRegion?.id != 'ocean_shallows' || boss != null) {
       return;
     }
-    final currentBoss = BossFishComponent(
+    final arena = BossArenaBoundaryComponent(bounds: bossArenaBounds);
+    final gate = RegionGateComponent(
+      bounds: const Rect.fromLTRB(-190, -842, 190, -805),
       player: player,
-      fieldBounds: bossArenaBounds,
-      position: Vector2(-310, -705),
-      onRemoved: (_) {},
+      isUnlocked: () => player.progress.isRegionUnlocked('deep_sea'),
+      onBlocked: () => setCombatMessage('DEFEAT THE CURRENT WARDEN'),
+      onEnter: () => unawaited(enterRegion('deep_sea')),
     );
-    boss = currentBoss;
-    await addAll([
-      BossArenaBoundaryComponent(bounds: bossArenaBounds),
-      RegionGateComponent(
-        bounds: const Rect.fromLTRB(-190, -842, 190, -805),
+    final components = <Component>[arena, gate];
+    if (!player.progress.defeatedBossIds.contains(BossFishComponent.bossId)) {
+      final currentBoss = BossFishComponent(
         player: player,
-        isUnlocked: () => player.progress.isRegionUnlocked('deep_sea'),
-        onBlocked: () => setCombatMessage('DEFEAT THE CURRENT WARDEN'),
-      ),
-      currentBoss,
-    ]);
+        fieldBounds: bossArenaBounds,
+        position: Vector2(-310, -705),
+        onRemoved: (_) {},
+      );
+      boss = currentBoss;
+      components.add(currentBoss);
+    }
+    _regionComponents.addAll(components);
+    await addAll(components);
   }
 
   void _handleBossDefeated(BossFishComponent defeatedBoss) {
@@ -284,6 +329,7 @@ class FishWorld extends World with HasCollisionDetection {
       exp: data.exp,
       fullness: data.fullness,
       currentSpeciesId: data.currentSpeciesId,
+      currentRegionId: data.currentRegionId,
       eatenCountBySpeciesId: data.eatenCountBySpeciesId,
       unlockedSpeciesIds: data.unlockedSpeciesIds,
       discoveredSpeciesIds: data.discoveredSpeciesIds,

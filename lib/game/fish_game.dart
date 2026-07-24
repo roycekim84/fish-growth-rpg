@@ -86,7 +86,11 @@ class FishGame extends FlameGame<FishWorld> {
     loadedSpeciesCount.value = species.length;
     await world.initializeSpecies(species);
     regions = await RegionRepository().loadAll();
-    await world.initializeRegion(regions.first);
+    world.setRegionCatalog(regions);
+    final savedRegion = regions
+        .where((region) => region.id == world.player.progress.currentRegionId)
+        .firstOrNull;
+    await world.initializeRegion(savedRegion ?? regions.first);
     quests = await QuestRepository().loadAll();
     await world.initializeQuests(quests);
     await world.initializeBoss();

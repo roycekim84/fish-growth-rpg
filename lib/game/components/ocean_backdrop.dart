@@ -32,6 +32,11 @@ class OceanBackdrop extends PositionComponent {
   double _bubbleOffset = 0;
   Image? _waterTile;
   Image? _propsAtlas;
+  OceanBackdropTheme _theme = OceanBackdropTheme.shallows;
+
+  void setTheme(OceanBackdropTheme theme) {
+    _theme = theme;
+  }
 
   @override
   Future<void> onLoad() async {
@@ -51,7 +56,7 @@ class OceanBackdrop extends PositionComponent {
 
     canvas.drawRect(
       Rect.fromLTWH(0, 0, size.x, size.y),
-      Paint()..color = const Color(0xFF0A3A5A),
+      Paint()..color = _theme.baseColor,
     );
 
     _drawWaterTexture(canvas);
@@ -125,7 +130,7 @@ class OceanBackdrop extends PositionComponent {
   }
 
   void _drawParticles(Canvas canvas) {
-    final speckPaint = Paint()..color = const Color(0x6632D6C4);
+    final speckPaint = Paint()..color = _theme.particleColor;
     final bubblePaint = Paint()
       ..color = const Color(0x887CD6E8)
       ..style = PaintingStyle.stroke
@@ -142,6 +147,16 @@ class OceanBackdrop extends PositionComponent {
       }
     }
   }
+}
+
+enum OceanBackdropTheme {
+  shallows(Color(0xFF0A3A5A), Color(0x6632D6C4)),
+  deepSea(Color(0xFF07132D), Color(0x555D7CFF));
+
+  const OceanBackdropTheme(this.baseColor, this.particleColor);
+
+  final Color baseColor;
+  final Color particleColor;
 }
 
 class _OceanPropPlacement {

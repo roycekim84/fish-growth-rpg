@@ -1,4 +1,5 @@
 import 'package:fish_growth_rpg/game/fish_game.dart';
+import 'package:fish_growth_rpg/domain/models/quest_definition.dart';
 import 'package:fish_growth_rpg/ui/theme/pixel_ui.dart';
 import 'package:flutter/material.dart';
 
@@ -14,7 +15,7 @@ class CollectionOverlay extends StatelessWidget {
       child: SafeArea(
         minimum: const EdgeInsets.all(12),
         child: DefaultTabController(
-          length: 2,
+          length: 3,
           child: Column(
             children: [
               PixelHeader(
@@ -27,6 +28,7 @@ class CollectionOverlay extends StatelessWidget {
                 tabs: [
                   Tab(text: 'SPECIES'),
                   Tab(text: 'REGIONS'),
+                  Tab(text: 'QUESTS'),
                 ],
                 labelColor: PixelPalette.cream,
                 unselectedLabelColor: PixelPalette.muted,
@@ -38,6 +40,7 @@ class CollectionOverlay extends StatelessWidget {
                   children: [
                     _SpeciesCollectionList(game: game),
                     _RegionCollectionList(game: game),
+                    _QuestCollectionList(game: game),
                   ],
                 ),
               ),
@@ -45,6 +48,82 @@ class CollectionOverlay extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _QuestCollectionList extends StatelessWidget {
+  const _QuestCollectionList({required this.game});
+
+  final FishGame game;
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder<int>(
+      valueListenable: game.world.player.progressChanges,
+      builder: (context, revision, child) {
+        final system = game.world.questSystem;
+        return ListView.separated(
+          itemCount: game.quests.length,
+          separatorBuilder: (context, index) => const SizedBox(height: 8),
+          itemBuilder: (context, index) {
+            final quest = game.quests[index];
+            final status = game.world.player.progress.questStatus(quest.id);
+            final progress = system?.progressFor(quest) ?? 0;
+            final completed = status == QuestStatus.completed;
+            final active = status == QuestStatus.active;
+            return PixelPanel(
+              key: ValueKey('quest-card-${quest.id}'),
+              accent: completed
+                  ? PixelPalette.green
+                  : active
+                  ? PixelPalette.gold
+                  : PixelPalette.muted,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '${completed
+                        ? "✓"
+                        : active
+                        ? "◆"
+                        : "?"} ${quest.title}',
+                    style: const TextStyle(
+                      color: PixelPalette.cream,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    quest.description,
+                    style: const TextStyle(
+                      color: Color(0xFFB7C8D6),
+                      fontSize: 11,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    completed
+                        ? 'COMPLETE — ${quest.rewardText}'
+                        : active
+                        ? 'PROGRESS  $progress / ${quest.targetCount}'
+                        : 'ASK NURI TO BEGIN',
+                    style: TextStyle(
+                      color: completed
+                          ? PixelPalette.green
+                          : active
+                          ? PixelPalette.mint
+                          : PixelPalette.muted,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
     );
   }
 }

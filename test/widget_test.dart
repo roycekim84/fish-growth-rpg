@@ -48,6 +48,12 @@ void main() {
     await tester.tap(find.text('REGIONS'));
     await tester.pumpAndSettle();
     expect(find.text('DISCOVERY  0 / 5'), findsOneWidget);
+    await tester.tap(find.text('QUESTS'));
+    await tester.pumpAndSettle();
+    expect(
+      find.byKey(const ValueKey('quest-card-shallow_trail')),
+      findsOneWidget,
+    );
 
     await tester.tap(find.byKey(const ValueKey('collection-close-button')));
     await tester.pump();
