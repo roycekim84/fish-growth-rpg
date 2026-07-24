@@ -9,6 +9,7 @@ import 'package:fish_growth_rpg/game/components/field_boundary_component.dart';
 import 'package:fish_growth_rpg/game/components/ability_gate_component.dart';
 import 'package:fish_growth_rpg/game/components/boss_arena_boundary_component.dart';
 import 'package:fish_growth_rpg/game/components/boss_fish_component.dart';
+import 'package:fish_growth_rpg/game/components/deep_sea_vent_component.dart';
 import 'package:fish_growth_rpg/game/components/impact_burst_component.dart';
 import 'package:fish_growth_rpg/game/components/ocean_backdrop.dart';
 import 'package:fish_growth_rpg/game/components/npc_fish_component.dart';
@@ -241,7 +242,20 @@ class FishWorld extends World with HasCollisionDetection {
         label: 'ECHO TRENCH',
         onBlocked: (label) => setCombatMessage('$label REQUIRES HUNTER'),
       );
-      _regionComponents.add(echoTrench);
+      _regionComponents.addAll([
+        echoTrench,
+        DeepSeaVentComponent(
+          position: Vector2(-150, 280),
+          player: player,
+          onDamage: _handleDeepSeaVentDamage,
+        ),
+        DeepSeaVentComponent(
+          position: Vector2(300, -300),
+          player: player,
+          onDamage: _handleDeepSeaVentDamage,
+          radius: 64,
+        ),
+      ]);
     }
     await addAll(_regionComponents);
     _spawnSystem?.refreshForCurrentRegion();
@@ -283,6 +297,27 @@ class FishWorld extends World with HasCollisionDetection {
     _celebrate(ImpactEffect.unlock, GameFeedbackEvent.unlock);
     setCombatMessage('WARDEN DEFEATED!  DEEP SEA OPEN');
     boss = null;
+  }
+
+  void _handleDeepSeaVentDamage(double damage) {
+    recoverySystem.markCombat();
+    final defeated = player.takeDamage(damage);
+    add(
+      ImpactBurstComponent(
+        position: player.position.clone(),
+        effect: ImpactEffect.hit,
+      ),
+    );
+    onFeedback(
+      defeated ? GameFeedbackEvent.defeat : GameFeedbackEvent.playerHit,
+    );
+    if (defeated) {
+      player.reviveAt(Vector2(0, 620));
+      playerDefeatCount.value++;
+      setCombatMessage('VENT RESPAWN');
+      return;
+    }
+    setCombatMessage('VENT BURN  -${damage.ceil()} HP');
   }
 
   Future<void> initializeQuests(List<QuestDefinition> quests) async {
