@@ -10,5 +10,11 @@
       {"id": "blue_current", "displayName": "푸른 해류", "description": "심해 쪽에서 불어오는 차가운 흐름.", "x": 240, "y": 560, "radius": 100},
       {"id": "whispering_current", "displayName": "속삭이는 해류", "description": "가느다란 몸만이 도달할 수 있는 차가운 상류.", "x": -360, "y": -690, "radius": 100}
     ]
+  },
+  {
+    "id": "deep_sea",
+    "displayName": "심해 입구",
+    "description": "해류의 수호자를 넘어야만 열리는 어두운 바다의 입구.",
+    "discoveryPoints": []
   }
 ]

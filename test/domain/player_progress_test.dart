@@ -106,5 +106,15 @@ void main() {
       expect(progress.unlockSpeciesFromQuest('small_fish'), isTrue);
       expect(progress.isSpeciesUnlocked('small_fish'), isTrue);
     });
+
+    test('unlocks the next region after defeating a boss once', () {
+      final progress = PlayerProgress();
+
+      expect(progress.isRegionUnlocked('deep_sea'), isFalse);
+      expect(progress.defeatBoss('current_warden'), isTrue);
+      expect(progress.defeatBoss('current_warden'), isFalse);
+      expect(progress.unlockRegion('deep_sea'), isTrue);
+      expect(progress.isRegionUnlocked('deep_sea'), isTrue);
+    });
   });
 }

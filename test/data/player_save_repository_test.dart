@@ -8,7 +8,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('JsonPlayerSaveRepository', () {
-    test('round-trips schema v3 progress and UTC save time', () async {
+    test('round-trips schema v4 progress and UTC save time', () async {
       final store = MemoryStringPreferencesStore();
       final repository = JsonPlayerSaveRepository(store);
       final progress = PlayerProgress(
@@ -24,6 +24,8 @@ void main() {
           'ocean_shallows': {'sunlit_kelp', 'blue_current'},
         },
         questStatusById: {'shallow_trail': QuestStatus.active},
+        unlockedRegionIds: {'ocean_shallows', 'deep_sea'},
+        defeatedBossIds: {'current_warden'},
       );
       final savedAt = DateTime.parse('2026-07-19T17:30:00+09:00');
 
@@ -33,7 +35,7 @@ void main() {
       final result = await repository.load();
 
       expect(result.state, SaveLoadState.loaded);
-      expect(result.data!.schemaVersion, 3);
+      expect(result.data!.schemaVersion, 4);
       expect(result.data!.level, 4);
       expect(result.data!.exp, 17);
       expect(result.data!.hp, 31.5);
@@ -45,6 +47,8 @@ void main() {
         'blue_current',
       });
       expect(result.data!.questStatusById['shallow_trail'], QuestStatus.active);
+      expect(result.data!.unlockedRegionIds, {'ocean_shallows', 'deep_sea'});
+      expect(result.data!.defeatedBossIds, {'current_warden'});
       expect(result.data!.lastSaveTimeUtc.isUtc, isTrue);
       expect(result.data!.lastSaveTimeUtc, DateTime.utc(2026, 7, 19, 8, 30));
     });
@@ -63,7 +67,7 @@ void main() {
         'lastSaveTimeUtc': '2026-07-19T00:00:00Z',
       });
 
-      expect(data.schemaVersion, 3);
+      expect(data.schemaVersion, 4);
       expect(data.discoveredRegionIds, isEmpty);
       expect(data.discoveredPointIdsByRegionId, isEmpty);
     });

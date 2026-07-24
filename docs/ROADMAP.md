@@ -315,11 +315,11 @@
 
 목표: 보스가 다음 지역을 여는 관문 역할을 한다.
 
-- [ ] Boss entity foundation
-- [ ] boss arena boundary
-- [ ] boss defeat event
-- [ ] next region unlock
-- [ ] respawn penalty 최소화
+- [x] Boss entity foundation
+- [x] boss arena boundary
+- [x] boss defeat event
+- [x] next region unlock
+- [x] respawn penalty 최소화
 
 완료 조건: 첫 boss를 통해 새 지역 접근이 열린다.
 

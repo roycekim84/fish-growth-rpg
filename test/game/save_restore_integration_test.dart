@@ -29,6 +29,8 @@ void main() {
             'ocean_shallows': {'sunlit_kelp'},
           },
           questStatusById: {'shallow_trail': QuestStatus.active},
+          unlockedRegionIds: {'ocean_shallows', 'deep_sea'},
+          defeatedBossIds: {'current_warden'},
           eatenCountBySpeciesId: {'small_fish': 100, 'puffer_fish': 37},
           lastSaveTimeUtc: savedAt,
         ),
@@ -68,6 +70,9 @@ void main() {
       game.world.player.progress.questStatus('shallow_trail'),
       QuestStatus.active,
     );
+    expect(game.world.player.progress.isRegionUnlocked('deep_sea'), isTrue);
+    expect(game.world.player.progress.defeatedBossIds, {'current_warden'});
+    expect(game.world.boss, isNull);
 
     await game.saveNow();
 
@@ -81,7 +86,7 @@ void main() {
     final observer = GameLifecycleSaveObserver(game: game);
     await observer.saveForState(AppLifecycleState.paused);
     expect(repository.saved, hasLength(2));
-    expect(repository.saved.last.schemaVersion, 3);
+    expect(repository.saved.last.schemaVersion, 4);
     expect(repository.saved.last.lastSaveTimeUtc.isUtc, isTrue);
 
     await observer.saveForState(AppLifecycleState.resumed);

@@ -12,6 +12,8 @@ class PlayerProgress {
     Set<String>? discoveredRegionIds,
     Map<String, Set<String>>? discoveredPointIdsByRegionId,
     Map<String, QuestStatus>? questStatusById,
+    Set<String>? unlockedRegionIds,
+    Set<String>? defeatedBossIds,
   }) : eatenCountBySpeciesId = {...?eatenCountBySpeciesId},
        unlockedSpeciesIds = {starterSpeciesId, ...?unlockedSpeciesIds},
        discoveredSpeciesIds = {...?discoveredSpeciesIds},
@@ -22,7 +24,9 @@ class PlayerProgress {
                  const <MapEntry<String, Set<String>>>[])
            entry.key: {...entry.value},
        },
-       questStatusById = {...?questStatusById};
+       questStatusById = {...?questStatusById},
+       unlockedRegionIds = {'ocean_shallows', ...?unlockedRegionIds},
+       defeatedBossIds = {...?defeatedBossIds};
 
   static const String starterSpeciesId = 'starter_fish';
   static const double maxFullness = 100;
@@ -41,6 +45,8 @@ class PlayerProgress {
   final Set<String> discoveredRegionIds;
   final Map<String, Set<String>> discoveredPointIdsByRegionId;
   final Map<String, QuestStatus> questStatusById;
+  final Set<String> unlockedRegionIds;
+  final Set<String> defeatedBossIds;
 
   int get requiredExp => 20 + level * 10;
   double get maxHp => baseMaxHp + (level - 1) * 5;
@@ -107,6 +113,23 @@ class PlayerProgress {
     return discoveredRegionIds.add(regionId);
   }
 
+  bool isRegionUnlocked(String regionId) =>
+      unlockedRegionIds.contains(regionId);
+
+  bool unlockRegion(String regionId) {
+    if (regionId.isEmpty) {
+      return false;
+    }
+    return unlockedRegionIds.add(regionId);
+  }
+
+  bool defeatBoss(String bossId) {
+    if (bossId.isEmpty) {
+      return false;
+    }
+    return defeatedBossIds.add(bossId);
+  }
+
   bool hasDiscoveredPoint(String regionId, String pointId) {
     return discoveredPointIdsByRegionId[regionId]?.contains(pointId) ?? false;
   }
@@ -160,6 +183,8 @@ class PlayerProgress {
     Set<String> discoveredRegionIds = const {},
     Map<String, Set<String>> discoveredPointIdsByRegionId = const {},
     Map<String, QuestStatus> questStatusById = const {},
+    Set<String> unlockedRegionIds = const {},
+    Set<String> defeatedBossIds = const {},
   }) {
     this.level = level < 1 ? 1 : level;
     this.exp = exp < 0 ? 0 : exp;
@@ -187,6 +212,13 @@ class PlayerProgress {
     this.questStatusById
       ..clear()
       ..addAll(questStatusById);
+    this.unlockedRegionIds
+      ..clear()
+      ..add('ocean_shallows')
+      ..addAll(unlockedRegionIds);
+    this.defeatedBossIds
+      ..clear()
+      ..addAll(defeatedBossIds);
   }
 
   double consumeFullness(double requestedAmount) {

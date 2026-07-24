@@ -15,6 +15,8 @@ class PlayerSaveData {
     Set<String>? discoveredRegionIds,
     Map<String, Set<String>>? discoveredPointIdsByRegionId,
     Map<String, QuestStatus>? questStatusById,
+    Set<String>? unlockedRegionIds,
+    Set<String>? defeatedBossIds,
     this.schemaVersion = currentSchemaVersion,
   }) : unlockedSpeciesIds = Set.unmodifiable(unlockedSpeciesIds),
        discoveredSpeciesIds = Set.unmodifiable(discoveredSpeciesIds),
@@ -26,9 +28,11 @@ class PlayerSaveData {
                  const <MapEntry<String, Set<String>>>[])
            entry.key: Set.unmodifiable(entry.value),
        }),
-       questStatusById = Map.unmodifiable(questStatusById ?? const {});
+       questStatusById = Map.unmodifiable(questStatusById ?? const {}),
+       unlockedRegionIds = Set.unmodifiable(unlockedRegionIds ?? const {}),
+       defeatedBossIds = Set.unmodifiable(defeatedBossIds ?? const {});
 
-  static const int currentSchemaVersion = 3;
+  static const int currentSchemaVersion = 4;
 
   final int schemaVersion;
   final int level;
@@ -42,6 +46,8 @@ class PlayerSaveData {
   final Set<String> discoveredRegionIds;
   final Map<String, Set<String>> discoveredPointIdsByRegionId;
   final Map<String, QuestStatus> questStatusById;
+  final Set<String> unlockedRegionIds;
+  final Set<String> defeatedBossIds;
   final DateTime lastSaveTimeUtc;
 
   factory PlayerSaveData.capture({
@@ -61,6 +67,8 @@ class PlayerSaveData {
       discoveredRegionIds: progress.discoveredRegionIds,
       discoveredPointIdsByRegionId: progress.discoveredPointIdsByRegionId,
       questStatusById: progress.questStatusById,
+      unlockedRegionIds: progress.unlockedRegionIds,
+      defeatedBossIds: progress.defeatedBossIds,
       lastSaveTimeUtc: savedAt.toUtc(),
     );
   }
@@ -85,6 +93,8 @@ class PlayerSaveData {
       'discoveredPointIdsByRegionId',
     );
     final questStatuses = _optionalQuestStatusMap(json, 'questStatusById');
+    final unlockedRegions = _optionalStringSet(json, 'unlockedRegionIds');
+    final defeatedBosses = _optionalStringSet(json, 'defeatedBossIds');
     final savedAtText = _requiredString(json, 'lastSaveTimeUtc');
     final savedAt = DateTime.tryParse(savedAtText);
 
@@ -110,6 +120,8 @@ class PlayerSaveData {
       discoveredRegionIds: discoveredRegions,
       discoveredPointIdsByRegionId: discoveredPoints,
       questStatusById: questStatuses,
+      unlockedRegionIds: unlockedRegions,
+      defeatedBossIds: defeatedBosses,
       lastSaveTimeUtc: savedAt.toUtc(),
     );
   }
@@ -137,6 +149,8 @@ class PlayerSaveData {
             .toList()
           ..sort((a, b) => a.key.compareTo(b.key)),
       ),
+      'unlockedRegionIds': unlockedRegionIds.toList()..sort(),
+      'defeatedBossIds': defeatedBossIds.toList()..sort(),
       'eatenCountBySpeciesId': Map.fromEntries(
         eatenCountBySpeciesId.entries.toList()
           ..sort((a, b) => a.key.compareTo(b.key)),

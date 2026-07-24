@@ -89,6 +89,7 @@ class FishGame extends FlameGame<FishWorld> {
     await world.initializeRegion(regions.first);
     quests = await QuestRepository().loadAll();
     await world.initializeQuests(quests);
+    await world.initializeBoss();
     world.playerDefeatCount.addListener(_handlePlayerDefeat);
     await camera.viewport.addAll([
       UnderwaterLightOverlay(logicalSize: Vector2(logicalWidth, logicalHeight)),

@@ -6,11 +6,14 @@ import 'package:fish_growth_rpg/domain/models/region_definition.dart';
 import 'package:fish_growth_rpg/domain/models/quest_definition.dart';
 import 'package:fish_growth_rpg/game/components/field_boundary_component.dart';
 import 'package:fish_growth_rpg/game/components/ability_gate_component.dart';
+import 'package:fish_growth_rpg/game/components/boss_arena_boundary_component.dart';
+import 'package:fish_growth_rpg/game/components/boss_fish_component.dart';
 import 'package:fish_growth_rpg/game/components/impact_burst_component.dart';
 import 'package:fish_growth_rpg/game/components/ocean_backdrop.dart';
 import 'package:fish_growth_rpg/game/components/npc_fish_component.dart';
 import 'package:fish_growth_rpg/game/components/player_fish_component.dart';
 import 'package:fish_growth_rpg/game/components/quest_npc_component.dart';
+import 'package:fish_growth_rpg/game/components/region_gate_component.dart';
 import 'package:fish_growth_rpg/game/systems/auto_hunt_system.dart';
 import 'package:fish_growth_rpg/game/systems/combat_system.dart';
 import 'package:fish_growth_rpg/game/systems/npc_spawn_system.dart';
@@ -64,6 +67,7 @@ class FishWorld extends World with HasCollisionDetection {
   NpcSpawnSystem? _spawnSystem;
   RegionDiscoverySystem? _regionDiscoverySystem;
   QuestSystem? questSystem;
+  BossFishComponent? boss;
   List<FishSpecies> _species = const [];
   double _combatMessageRemaining = 0;
   double? _restoredHp;
@@ -72,6 +76,7 @@ class FishWorld extends World with HasCollisionDetection {
       _spawnSystem?.activeFish ?? const [];
   List<FishSpecies> get species => _species;
   RegionDefinition? currentRegion;
+  static const Rect bossArenaBounds = Rect.fromLTRB(-620, -840, 620, -590);
 
   @override
   Future<void> onLoad() async {
@@ -106,6 +111,10 @@ class FishWorld extends World with HasCollisionDetection {
   void _handleFishConsumed(NpcFishComponent fish) {
     consumedFishCount.value++;
     final result = player.consume(fish.species);
+    if (fish is BossFishComponent) {
+      _handleBossDefeated(fish);
+      return;
+    }
     if (result.unlockedSpecies) {
       _celebrate(ImpactEffect.unlock, GameFeedbackEvent.unlock);
       setCombatMessage('SPECIES UNLOCK!  ${fish.species.displayName}');
@@ -156,7 +165,9 @@ class FishWorld extends World with HasCollisionDetection {
       return;
     }
     currentRegion = region;
-    if (player.progress.discoverRegion(region.id)) {
+    final discovered = player.progress.discoverRegion(region.id);
+    final unlocked = player.progress.unlockRegion(region.id);
+    if (discovered || unlocked) {
       player.progressChanges.value++;
     }
     final system = RegionDiscoverySystem(
@@ -182,6 +193,41 @@ class FishWorld extends World with HasCollisionDetection {
         onBlocked: (label) => setCombatMessage('$label REQUIRES PUFFER'),
       ),
     ]);
+  }
+
+  Future<void> initializeBoss() async {
+    if (boss != null ||
+        player.progress.defeatedBossIds.contains(BossFishComponent.bossId)) {
+      return;
+    }
+    final currentBoss = BossFishComponent(
+      player: player,
+      fieldBounds: bossArenaBounds,
+      position: Vector2(-310, -705),
+      onRemoved: (_) {},
+    );
+    boss = currentBoss;
+    await addAll([
+      BossArenaBoundaryComponent(bounds: bossArenaBounds),
+      RegionGateComponent(
+        bounds: const Rect.fromLTRB(-190, -842, 190, -805),
+        player: player,
+        isUnlocked: () => player.progress.isRegionUnlocked('deep_sea'),
+        onBlocked: () => setCombatMessage('DEFEAT THE CURRENT WARDEN'),
+      ),
+      currentBoss,
+    ]);
+  }
+
+  void _handleBossDefeated(BossFishComponent defeatedBoss) {
+    if (!player.progress.defeatBoss(BossFishComponent.bossId)) {
+      return;
+    }
+    player.progress.unlockRegion('deep_sea');
+    player.progressChanges.value++;
+    _celebrate(ImpactEffect.unlock, GameFeedbackEvent.unlock);
+    setCombatMessage('WARDEN DEFEATED!  DEEP SEA OPEN');
+    boss = null;
   }
 
   Future<void> initializeQuests(List<QuestDefinition> quests) async {
@@ -244,6 +290,8 @@ class FishWorld extends World with HasCollisionDetection {
       discoveredRegionIds: data.discoveredRegionIds,
       discoveredPointIdsByRegionId: data.discoveredPointIdsByRegionId,
       questStatusById: data.questStatusById,
+      unlockedRegionIds: data.unlockedRegionIds,
+      defeatedBossIds: data.defeatedBossIds,
     );
     _restoredHp = data.hp;
   }

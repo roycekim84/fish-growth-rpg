@@ -2,8 +2,8 @@
 
 ## 현재 상태
 
-- 현재 마일스톤: M11 — Species Ability Prototype
-- 완료 체크포인트: 물고기 애니메이션 + 해저 환경 + 공통 픽셀 UI + 전투 감각 + 탐험 중심 전환 + 첫 지역 발견 + 퀘스트 + 종 능력 기반
+- 현재 마일스톤: M12 — Region Gate and Mini Boss
+- 완료 체크포인트: 물고기 애니메이션 + 해저 환경 + 공통 픽셀 UI + 전투 감각 + 탐험 중심 전환 + 첫 지역 발견 + 퀘스트 + 종 능력 + 보스 관문
 - 마지막 갱신: 2026-07-20
 
 ## 완료
@@ -165,14 +165,18 @@
 - 능력별 게이트를 실제 플레이어 이동 제한으로 연결
 - 작은 물고기만 접근 가능한 `속삭이는 해류` 발견 지점 추가
 - 종변화 화면에 고유 능력 설명 표시
+- 북쪽 해류 너머의 보스 아레나와 미니 보스 `해류의 수호자` 추가
+- 보스 처치 시 `deep_sea` 지역 해금 및 관문 개방
+- boss defeat와 unlocked region을 save schema v4에 저장하고 구버전 저장 자동 migration
+- 기존 즉시 부활 구조를 유지해 보스 재도전 패널티를 최소화
 
 ## 진행 중
 
-- M11 Species Ability Prototype 검증
+- M12 Region Gate and Mini Boss 검증
 
 ## 다음 작업
 
-- M12 Region Gate and Mini Boss 설계 및 착수
+- M13 Adventure Alpha Polish 설계 및 착수
 - Android/iOS 물리 기기 M8 최종 승인은 병행 유지
 
 ## 블로커/미결정

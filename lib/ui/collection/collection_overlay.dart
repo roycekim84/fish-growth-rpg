@@ -106,14 +106,19 @@ class _RegionCollectionList extends StatelessWidget {
           itemBuilder: (context, index) {
             final region = game.regions[index];
             final discovered = progress.discoveredRegionIds.contains(region.id);
+            final unlocked = progress.isRegionUnlocked(region.id);
             final points = progress.discoveredPointIdsForRegion(region.id);
             return PixelPanel(
-              accent: discovered ? PixelPalette.mint : PixelPalette.muted,
+              accent: discovered
+                  ? PixelPalette.mint
+                  : unlocked
+                  ? PixelPalette.gold
+                  : PixelPalette.muted,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    discovered ? region.displayName : '???',
+                    unlocked ? region.displayName : '???',
                     style: const TextStyle(
                       color: PixelPalette.cream,
                       fontWeight: FontWeight.w900,
@@ -121,7 +126,11 @@ class _RegionCollectionList extends StatelessWidget {
                   ),
                   const SizedBox(height: 5),
                   Text(
-                    'DISCOVERY  ${points.length} / ${region.discoveryPoints.length}',
+                    discovered
+                        ? 'DISCOVERY  ${points.length} / ${region.discoveryPoints.length}'
+                        : unlocked
+                        ? 'GATE OPEN — ENTER NEXT'
+                        : 'GATE LOCKED',
                     style: const TextStyle(
                       color: PixelPalette.mint,
                       fontSize: 11,
@@ -130,7 +139,7 @@ class _RegionCollectionList extends StatelessWidget {
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    discovered ? region.description : '아직 발견하지 못한 지역입니다.',
+                    unlocked ? region.description : '아직 발견하지 못한 지역입니다.',
                     style: const TextStyle(
                       color: Color(0xFFB7C8D6),
                       fontSize: 11,
