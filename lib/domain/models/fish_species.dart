@@ -15,6 +15,7 @@ class FishSpecies {
     required this.fullnessReward,
     required this.unlockEatCount,
     required this.maxSpawnCount,
+    this.spawnCountByRegionId = const {},
     this.playerMaxHpMultiplier = 1,
     this.playerStrengthMultiplier = 1,
     this.playerSpeedMultiplier = 1,
@@ -43,6 +44,11 @@ class FishSpecies {
       fullnessReward: (json['fullnessReward'] as num).toDouble(),
       unlockEatCount: json['unlockEatCount'] as int,
       maxSpawnCount: json['maxSpawnCount'] as int,
+      spawnCountByRegionId: Map<String, int>.unmodifiable(
+        (json['spawnCountByRegionId'] as Map<String, dynamic>? ?? {}).map(
+          (key, value) => MapEntry(key, value as int),
+        ),
+      ),
       playerMaxHpMultiplier:
           (json['playerMaxHPMultiplier'] as num?)?.toDouble() ?? 1,
       playerStrengthMultiplier:
@@ -76,6 +82,7 @@ class FishSpecies {
   final double fullnessReward;
   final int unlockEatCount;
   final int maxSpawnCount;
+  final Map<String, int> spawnCountByRegionId;
   final double playerMaxHpMultiplier;
   final double playerStrengthMultiplier;
   final double playerSpeedMultiplier;
@@ -85,4 +92,8 @@ class FishSpecies {
   final String playerAbilityId;
   final String playerAbilityName;
   final String playerAbilityDescription;
+
+  int spawnCountForRegion(String? regionId) {
+    return spawnCountByRegionId[regionId] ?? maxSpawnCount;
+  }
 }

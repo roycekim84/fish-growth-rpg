@@ -51,9 +51,23 @@ class NpcSpawnSystem extends Component {
     return _activeFish.where((fish) => fish.species.id == speciesId).length;
   }
 
+  void refreshForCurrentRegion() {
+    final fishToRemove = List<NpcFishComponent>.of(_activeFish);
+    _activeFish.clear();
+    for (final fish in fishToRemove) {
+      fish.removeFromParent();
+    }
+    fishWorld.npcCount.value = 0;
+    _respawnCooldown = respawnInterval;
+    _fillPopulation();
+  }
+
   void _fillPopulation() {
     for (final definition in species) {
-      final missing = definition.maxSpawnCount - countForSpecies(definition.id);
+      final targetCount = definition.spawnCountForRegion(
+        fishWorld.currentRegion?.id,
+      );
+      final missing = targetCount - countForSpecies(definition.id);
       for (var i = 0; i < missing; i++) {
         final position = _positionPicker.pick(
           playerPosition: fishWorld.player.position,

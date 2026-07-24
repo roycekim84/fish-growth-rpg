@@ -233,8 +233,18 @@ class FishWorld extends World with HasCollisionDetection {
         onBlocked: (label) => setCombatMessage('$label REQUIRES PUFFER'),
       );
       _regionComponents.addAll([narrowCurrent, coralWall]);
+    } else if (region.id == 'deep_sea') {
+      final echoTrench = AbilityGateComponent(
+        bounds: const Rect.fromLTRB(-640, -650, 640, -610),
+        player: player,
+        requiredAbilityId: 'deep_sense',
+        label: 'ECHO TRENCH',
+        onBlocked: (label) => setCombatMessage('$label REQUIRES HUNTER'),
+      );
+      _regionComponents.add(echoTrench);
     }
     await addAll(_regionComponents);
+    _spawnSystem?.refreshForCurrentRegion();
   }
 
   Future<void> initializeBoss() async {

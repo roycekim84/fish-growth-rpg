@@ -19,6 +19,7 @@ void main() {
       'fullnessReward': 10,
       'unlockEatCount': 100,
       'maxSpawnCount': 30,
+      'spawnCountByRegionId': {'ocean_shallows': 30, 'deep_sea': 8},
       'playerMaxHPMultiplier': 0.75,
       'playerStrengthMultiplier': 0.8,
       'playerSpeedMultiplier': 1.2,
@@ -39,5 +40,7 @@ void main() {
     expect(species.playerTraitDescription, '빠른 종');
     expect(species.playerAbilityId, 'narrow_current');
     expect(species.playerAbilityName, '좁은 해류 통과');
+    expect(species.spawnCountForRegion('deep_sea'), 8);
+    expect(species.spawnCountForRegion('unknown_region'), 30);
   });
 }

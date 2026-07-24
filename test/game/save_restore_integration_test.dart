@@ -74,10 +74,17 @@ void main() {
     expect(game.world.player.progress.isRegionUnlocked('deep_sea'), isTrue);
     expect(game.world.player.progress.defeatedBossIds, {'current_warden'});
     expect(game.world.boss, isNull);
+    expect(game.world.activeNpcFish, hasLength(45));
 
     await game.world.enterRegion('deep_sea');
     expect(game.world.currentRegion!.id, 'deep_sea');
     expect(game.world.player.progress.currentRegionId, 'deep_sea');
+    expect(game.world.activeNpcFish, hasLength(26));
+    expect(
+      game.world.activeNpcFish
+          .where((fish) => fish.species.id == 'hunter_fish'),
+      hasLength(12),
+    );
 
     await game.saveNow();
 

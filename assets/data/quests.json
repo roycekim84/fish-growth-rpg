@@ -31,6 +31,7 @@
     "objectiveType": "discoverPoints",
     "regionId": "deep_sea",
     "targetCount": 3,
-    "rewardText": "심해 탐험 기록 완성"
+    "rewardSpeciesId": "hunter_fish",
+    "rewardText": "사냥 물고기 종변화 해금"
   }
 ]
